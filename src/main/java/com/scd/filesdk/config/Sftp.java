@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 public class Sftp {
 
     private String host;
+    private Integer port;
     private String username;
     private String password;
     private String path;
@@ -45,6 +46,14 @@ public class Sftp {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
     }
 
     @Override
