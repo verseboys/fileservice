@@ -61,7 +61,7 @@ public class SftpUtil {
             Session oldSession = channelSftp.getSession();
             if(oldSession.isConnected()) {
                 if (oldSession.getHost().equals(host) && oldSession.getPort() == port
-                        && username.equals(username)) {
+                        && oldSession.getUserName().equals(username)) {
                     LOGGER.info("client has connected sftp, host " + host+",port " + port);
                     connected = true;
                 }
