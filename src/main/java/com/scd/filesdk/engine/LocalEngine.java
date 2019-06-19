@@ -34,7 +34,7 @@ public class LocalEngine extends BaseEngine{
     @Override
     public String upload(InputStream inputStream, String filename) throws IOException {
        String storePath = local.getPath();
-       String targetPath = storePath + File.separator + filename;
+       String targetPath = storePath + "/" + filename;
        FileUtil.writeInputStreamToLocal(inputStream, targetPath);
        return targetPath;
     }

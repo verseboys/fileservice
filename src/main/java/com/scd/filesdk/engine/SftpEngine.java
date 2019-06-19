@@ -1,14 +1,19 @@
 package com.scd.filesdk.engine;
 
+import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import com.scd.filesdk.config.Sftp;
 import com.scd.filesdk.util.DateUtil;
+import com.scd.filesdk.util.FileUtil;
 import com.scd.filesdk.util.SftpUtil;
+import com.scd.filesdk.util.SftpUtilMulti;
 import netscape.javascript.JSException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
@@ -24,8 +29,10 @@ public class SftpEngine extends BaseEngine{
 
 
     @Override
-    public String upload(String filePath) {
-        return "I am SftpEngine";
+    public String upload(String filePath) throws Exception{
+        InputStream inputStream = new FileInputStream(filePath);
+        String filename = FileUtil.getFileName(filePath);
+        return upload(inputStream, filename);
     }
 
     @Override
@@ -34,14 +41,19 @@ public class SftpEngine extends BaseEngine{
         String curDate = DateUtil.formatDatetoString(new Date(), DateUtil.YYYYMMDD);
         String destPath = remotePath + "/" + curDate;
         // 连接远程客户端
-        SftpUtil.connectSftp(sftp.getHost(), sftp.getPort(), sftp.getUsername(), sftp.getPassword());
+        ChannelSftp channelSftp = SftpUtilMulti.connectSftp(sftp.getHost(), sftp.getPort(),
+                sftp.getUsername(), sftp.getPassword());
         // 上传文件
-        String uploaddir = SftpUtil.upload(inputStream, destPath, filename);
-        return uploaddir + "/" + filename;
+        return SftpUtilMulti.upload(channelSftp, inputStream, destPath, filename);
     }
 
     @Override
-    public String upload(byte[] fbyte, String filename) throws IOException{
-        return null;
+    public String upload(byte[] fbyte, String filename) throws Exception{
+        String tempfilepath = "sftptemp" + "/" + filename;
+        FileUtil.writeByteToFile(fbyte, tempfilepath);
+        InputStream inputStream = new FileInputStream(tempfilepath);
+        String remotePath = upload(inputStream, filename);
+        FileUtil.deleteFile(tempfilepath);
+        return remotePath;
     }
 }

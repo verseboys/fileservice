@@ -10,9 +10,9 @@ import java.io.InputStream;
  */
 public abstract class BaseEngine {
 
-    public abstract String upload(String filePath) throws IOException;
+    public abstract String upload(String filePath) throws Exception;
 
     public abstract String upload(InputStream inputStream, String filename) throws Exception ;
 
-    public abstract String upload(byte[] fbyte, String filename) throws IOException;
+    public abstract String upload(byte[] fbyte, String filename) throws Exception;
 }

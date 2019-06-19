@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
+ * 多线程情况下有问题
  * @author chengdu
  * @date 2019/6/18.
  */
@@ -26,7 +27,7 @@ public class SftpUtil {
      * @param password
      * @throws JSchException
      */
-    public static void connectSftp(String host, int port, String username, String password) throws JSchException {
+    public static void  connectSftp(String host, int port, String username, String password) throws JSchException {
         if(isSftpConnected(host, port, username)){
             return ;
         }
@@ -57,12 +58,12 @@ public class SftpUtil {
      */
     public static boolean isSftpConnected(String host, int port, String username) throws JSchException{
         boolean connected = false;
-        if(channelSftp != null && channelSftp.isConnected()) {
+        if (channelSftp != null && channelSftp.isConnected()) {
             Session oldSession = channelSftp.getSession();
-            if(oldSession.isConnected()) {
+            if (oldSession.isConnected()) {
                 if (oldSession.getHost().equals(host) && oldSession.getPort() == port
                         && oldSession.getUserName().equals(username)) {
-                    LOGGER.info("client has connected sftp, host " + host+",port " + port);
+                    LOGGER.info("client has connected sftp, host " + host + ",port " + port);
                     connected = true;
                 }
             }
@@ -87,7 +88,7 @@ public class SftpUtil {
      * @param filepath
      * @throws SftpException
      */
-    public static void cdAndMkdirs(String filepath) throws SftpException {
+    public static synchronized void cdAndMkdirs(String filepath) throws SftpException {
         filepath.replace("\\","/");
         String[] paths = filepath.split("/");
         // 最后一个文件名的数据不 cd
@@ -100,6 +101,7 @@ public class SftpUtil {
             try {
                 channelSftp.cd(path);
             }catch (Exception e){
+                System.out.println(path);
                 channelSftp.mkdir(path);
                 LOGGER.info("mkdir "+path + " success");
                 channelSftp.cd(path);
@@ -123,6 +125,16 @@ public class SftpUtil {
         return loginPath + destPath;
     }
 
+    public static String upload(String srcpath, String destPath, String filename) throws SftpException {
+        // 创建远程目录文件夹
+        cdAndMkdirs(destPath);
+        channelSftp.put(srcpath, filename);
+        // 回到home连接目录
+        String loginPath = channelSftp.getHome();
+        channelSftp.cd(loginPath);
+        return loginPath + destPath + "/" + filename;
+    }
+
     public static void main(String[] args) throws Exception {
         String host = "192.168.1.104";
         int port = 22;
@@ -132,10 +144,10 @@ public class SftpUtil {
         connectSftp(host, port, username, password);
         System.out.println(channelSftp.isConnected());
         System.out.println(channelSftp.getHome());
-        String testPath = "12345/a/bb";
+        String testPath = "/12345";
         String path = "C:\\Users\\chengdu\\Desktop\\logback.xml";
         InputStream inputStream = new FileInputStream(path);
-        upload(inputStream, testPath, "logback.xml");
+        upload(inputStream, testPath, "logback3.xml");
         sftpQuit();
     }
 }

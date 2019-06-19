@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author chengdu
@@ -201,13 +203,41 @@ public class FileUtil {
         }
     }
 
+    public static void getFilePaths(String filepath, List<String> pathList) throws FileNotFoundException{
+        File file = new File(filepath);
+        if(!file.exists()){
+            throw new FileNotFoundException("not find file "+filepath);
+        }
+        if(file.isDirectory()){
+            File[] files = file.listFiles();
+            for(File f : files){
+                if(f.isDirectory()){
+                    getFilePaths(f.getAbsolutePath(), pathList);
+                }else{
+                    pathList.add(f.getAbsolutePath());
+                }
+            }
+        }else{
+            pathList.add(filepath);
+        }
+    }
+
+    public static void deleteFile(String filepath) {
+        File file = new File(filepath);
+        if(file.exists() && file.isFile()){
+            file.delete();
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         String sourcePath = "E:\\Github\\fileservice\\src\\main\\java\\com\\scd\\filesdk\\engine\\BaseEngine.java";
         String targetPath = "/home/scd/upload/aaa" + File.separator + "BaseEngine.java";
 //        String filename = getFileName(testPath);
 //        System.out.println(filename);
 //        copyFile(sourcePath, targetPath);
-        InputStream inputStream = new FileInputStream(sourcePath);
-        writeInputStreamToLocal(inputStream, targetPath);
+        String basePath = "C:\\Users\\chengdu\\Desktop\\filetype";
+        List<String> filePaths = new ArrayList<>(10);
+        getFilePaths(basePath, filePaths);
+        System.out.println(filePaths);
     }
 }
