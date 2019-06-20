@@ -1,6 +1,7 @@
 package com.scd.filesdk.config;
 
 import com.scd.filesdk.engine.BaseEngine;
+import com.scd.filesdk.engine.FtpEngine;
 import com.scd.filesdk.engine.LocalEngine;
 import com.scd.filesdk.engine.SftpEngine;
 import org.springframework.beans.factory.InitializingBean;
@@ -22,13 +23,13 @@ public class InitConfig implements InitializingBean{
     @Autowired
     private SftpEngine sftpEngine;
 
+    @Autowired
+    private FtpEngine ftpEngine;
+
     public Map<String, BaseEngine> getEngineMap() {
         return engineMap;
     }
 
-    public void setEngineMap(Map<String, BaseEngine> engineMap) {
-        this.engineMap = engineMap;
-    }
 
     private Map<String, BaseEngine> engineMap = new ConcurrentHashMap<>();
 
@@ -36,5 +37,6 @@ public class InitConfig implements InitializingBean{
     public void afterPropertiesSet() throws Exception {
         engineMap.put("local",localEngine);
         engineMap.put("sftp", sftpEngine);
+        engineMap.put("ftp", ftpEngine);
     }
 }

@@ -1,9 +1,9 @@
 package com.scd.test.sftp.task;
 
 import com.jcraft.jsch.ChannelSftp;
-import com.scd.filesdk.util.FileUtil;
-import com.scd.filesdk.util.SftpUtil;
-import com.scd.filesdk.util.SftpUtilMulti;
+import com.scd.filesdk.common.ServiceInfo;
+import com.scd.filesdk.util.*;
+import org.apache.commons.net.ftp.FTPClient;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -15,10 +15,15 @@ import java.util.concurrent.Callable;
  */
 public class SftpTask implements Callable<String> {
 
-    public static final String host = "192.168.1.104";
-    public static final int port = 22;
-    public static final String username = "test";
-    public static final String password = "test";
+//    public static final String host = ServiceInfo.SFTP.host;
+//    public static final int port = ServiceInfo.SFTP.port;
+//    public static final String username = ServiceInfo.SFTP.username;
+//    public static final String password = ServiceInfo.SFTP.password;
+
+    public static final String host = ServiceInfo.FTP.host;
+    public static final int port = ServiceInfo.FTP.port;
+    public static final String username = ServiceInfo.FTP.username;
+    public static final String password = ServiceInfo.FTP.password;
 
     private String filepath;
 
@@ -37,7 +42,7 @@ public class SftpTask implements Callable<String> {
         String filename = FileUtil.getFileName(filepath);
         Thread.sleep(3000);
         System.out.println("Thread:"+Thread.currentThread().getName() + " FileName:"+filepath);
-        String result = SftpUtil.upload(filepath, "/sftpupload", filename);
+        String result = SftpUtil.upload(inputStream, "/sftpupload", filename);
         SftpUtil.sftpQuit();
         return result;
     }
@@ -53,9 +58,31 @@ public class SftpTask implements Callable<String> {
         return result;
     }
 
+    public String testFtpUtil() throws Exception {
+        FtpUtil.connectFtp(host, port, username, password);
+        InputStream inputStream = new FileInputStream(filepath);
+        String filename = FileUtil.getFileName(filepath);
+        System.out.println("Thread:"+Thread.currentThread().getName() + " FileName:"+filepath);
+        String result = FtpUtil.upload(inputStream, "/ftpupload", filename);
+        FtpUtil.ftpQuit();
+        return result;
+    }
+
+    public String testFtpMulti() throws Exception {
+        FTPClient ftpClient = FtpUtilMulti.connectFtp(host, port, username, password);
+        InputStream inputStream = new FileInputStream(filepath);
+        String filename = FileUtil.getFileName(filepath);
+        System.out.println("Thread:"+Thread.currentThread().getName() + " FileName:"+filepath);
+        String result = FtpUtilMulti.upload(ftpClient, inputStream, "/ftpupload", filename);
+        FtpUtilMulti.ftpQuit(ftpClient);
+        return result;
+    }
+
     @Override
     public String call() throws Exception {
 //        return testSftpUtil();
-        return testSftpMulti();
+//        return testSftpMulti();
+//        return testFtpUtil();
+        return testFtpMulti();
     }
 }

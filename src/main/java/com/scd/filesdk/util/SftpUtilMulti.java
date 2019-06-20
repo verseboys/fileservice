@@ -56,7 +56,6 @@ public class SftpUtilMulti {
     public static void cdAndMkdirs(ChannelSftp channelSftp, String filepath) throws SftpException {
         filepath.replace("\\","/");
         String[] paths = filepath.split("/");
-        // 最后一个文件名的数据不 cd
         for(int i = 0; i < paths.length; i++){
             String path = paths[i];
             path = path.trim();
@@ -66,7 +65,6 @@ public class SftpUtilMulti {
             try {
                 channelSftp.cd(path);
             }catch (Exception e){
-                System.out.println(path);
                 channelSftp.mkdir(path);
                 LOGGER.info("mkdir "+path + " success");
                 channelSftp.cd(path);
@@ -85,7 +83,6 @@ public class SftpUtilMulti {
         // 创建远程目录文件夹
         cdAndMkdirs(channelSftp, destPath);
         channelSftp.put(inputStream, filename);
-        // 回到home连接目录
         String loginPath = channelSftp.getHome();
         return loginPath + destPath + "/" + filename;
     }

@@ -1,6 +1,7 @@
 package com.scd.filesdk.util;
 
 import com.jcraft.jsch.*;
+import com.scd.filesdk.common.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,10 +89,9 @@ public class SftpUtil {
      * @param filepath
      * @throws SftpException
      */
-    public static synchronized void cdAndMkdirs(String filepath) throws SftpException {
+    public static void cdAndMkdirs(String filepath) throws SftpException {
         filepath.replace("\\","/");
         String[] paths = filepath.split("/");
-        // 最后一个文件名的数据不 cd
         for(int i = 0; i < paths.length; i++){
             String path = paths[i];
             path = path.trim();
@@ -136,10 +136,10 @@ public class SftpUtil {
     }
 
     public static void main(String[] args) throws Exception {
-        String host = "192.168.1.104";
-        int port = 22;
-        String username = "test";
-        String password = "test";
+        String host = ServiceInfo.SFTP.host;
+        int port = ServiceInfo.SFTP.port;
+        String username = ServiceInfo.SFTP.username;
+        String password = ServiceInfo.SFTP.password;
         connectSftp(host, port, username, password);
         connectSftp(host, port, username, password);
         System.out.println(channelSftp.isConnected());

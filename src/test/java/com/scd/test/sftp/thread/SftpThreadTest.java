@@ -1,5 +1,6 @@
 package com.scd.test.sftp.thread;
 
+import com.scd.filesdk.common.ServiceInfo;
 import com.scd.filesdk.util.FileUtil;
 import com.scd.filesdk.util.SftpUtil;
 import com.scd.test.sftp.task.SftpTask;
@@ -17,10 +18,10 @@ import java.util.concurrent.Future;
  */
 public class SftpThreadTest {
 
-    public static final String host = "192.168.1.104";
-    public static final int port = 22;
-    public static final String username = "test";
-    public static final String password = "test";
+    public static final String host = ServiceInfo.SFTP.host;
+    public static final int port = ServiceInfo.SFTP.port;
+    public static final String username = ServiceInfo.SFTP.username;
+    public static final String password = ServiceInfo.SFTP.password;
 
     public static void main(String[] args) throws Exception {
         String basePath = "C:\\Users\\chengdu\\Desktop\\filetype";
