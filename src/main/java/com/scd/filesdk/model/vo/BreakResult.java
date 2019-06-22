@@ -1,0 +1,15 @@
+package com.scd.filesdk.model.vo;
+
+import lombok.Data;
+
+/**
+ * @author chengdu
+ * @date 2019/6/22.
+ */
+@Data
+public class BreakResult {
+
+    private String filePath;
+
+    private boolean writeStatus;
+}

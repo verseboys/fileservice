@@ -1,5 +1,6 @@
 package com.scd.filesdk.config;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -8,21 +9,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ConfigurationProperties(prefix = "file.engine.local")
+@Data
 public class Local {
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    @Override
-    public String toString() {
-        return "Local{" +
-                "path='" + path + '\'' +
-                '}';
-    }
-
     private String path;
 }

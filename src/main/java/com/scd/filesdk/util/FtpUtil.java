@@ -26,7 +26,7 @@ public class FtpUtil {
             return ;
         }
         ftpClient = new FTPClient();
-        ftpClient.setControlEncoding(StandardCharsets.UTF_8.name());
+        ftpClient.enterLocalPassiveMode();
         // 连接ftp服务器
         ftpClient.connect(host, port);
         // 登录ftp服务器
@@ -37,6 +37,9 @@ public class FtpUtil {
         }else{
             LOGGER.info("connect ftp success");
         }
+        ftpClient.setControlEncoding(StandardCharsets.UTF_8.name());
+        ftpClient.setDataTimeout(2000);
+        ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
     }
 
     public static void makeDirAndChange(String filepath) throws IOException {
@@ -62,9 +65,6 @@ public class FtpUtil {
     public static String upload(InputStream inputStream, String remotePath, String filename) throws IOException {
         makeDirAndChange(remotePath);
         ftpClient.storeFile(filename, inputStream);
-        if(inputStream != null){
-            inputStream.close();
-        }
         return ftpClient.printWorkingDirectory() + "/" + filename;
     }
 
@@ -77,6 +77,16 @@ public class FtpUtil {
                 LOGGER.error("quit ftp error");
             }
         }
+    }
+
+    /**
+     * 下载文件
+     * @param remotePath
+     * @return
+     * @throws IOException
+     */
+    public InputStream download(String remotePath) throws IOException {
+        return ftpClient.retrieveFileStream(remotePath);
     }
 
     public static void main(String[] args) throws IOException {

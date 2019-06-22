@@ -4,6 +4,8 @@ import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import com.scd.filesdk.config.Sftp;
+import com.scd.filesdk.model.param.BreakParam;
+import com.scd.filesdk.model.vo.BreakResult;
 import com.scd.filesdk.util.DateUtil;
 import com.scd.filesdk.util.FileUtil;
 import com.scd.filesdk.util.SftpUtil;
@@ -55,5 +57,18 @@ public class SftpEngine extends BaseEngine{
         String remotePath = upload(inputStream, filename);
         FileUtil.deleteFile(tempfilepath);
         return remotePath;
+    }
+
+    @Override
+    public InputStream download(String remotePath) throws JSchException,SftpException {
+        // 连接远程客户端
+        ChannelSftp channelSftp = SftpUtilMulti.connectSftp(sftp.getHost(), sftp.getPort(),
+                sftp.getUsername(), sftp.getPassword());
+        return SftpUtilMulti.download(channelSftp, remotePath);
+    }
+
+    @Override
+    public BreakResult upload(BreakParam breakParam) {
+        return null;
     }
 }

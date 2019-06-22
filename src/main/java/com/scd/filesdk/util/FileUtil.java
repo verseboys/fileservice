@@ -1,12 +1,12 @@
 package com.scd.filesdk.util;
 
 import com.scd.filesdk.engine.LocalEngine;
+import com.scd.fileservice.common.CommonConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author chengdu
@@ -239,5 +239,14 @@ public class FileUtil {
         List<String> filePaths = new ArrayList<>(10);
         getFilePaths(basePath, filePaths);
         System.out.println(filePaths);
+        Set<String> filesets = new HashSet<>();
+        for(int i = 0; i < 2; i++) {
+            String uuid = UUID.randomUUID().toString();
+            filesets.add(uuid);
+        }
+        System.out.println(filesets);
+        System.out.println(System.currentTimeMillis());
+        String key = String.format(CommonConstant.FILE_INFO, "2434");
+        System.out.println(key);
     }
 }

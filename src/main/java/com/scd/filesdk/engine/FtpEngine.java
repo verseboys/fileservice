@@ -1,7 +1,8 @@
 package com.scd.filesdk.engine;
 
-import com.jcraft.jsch.ChannelSftp;
 import com.scd.filesdk.config.Ftp;
+import com.scd.filesdk.model.param.BreakParam;
+import com.scd.filesdk.model.vo.BreakResult;
 import com.scd.filesdk.util.DateUtil;
 import com.scd.filesdk.util.FileUtil;
 import com.scd.filesdk.util.FtpUtilMulti;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
@@ -50,5 +52,18 @@ public class FtpEngine extends BaseEngine {
         String remotepath = upload(inputStream, filename);
         FileUtil.deleteFile(ftptemp);
         return remotepath;
+    }
+
+    @Override
+    public InputStream download(String remotePath) throws IOException {
+        // 连接远程客户端
+        FTPClient ftpClient = FtpUtilMulti.connectFtp(ftp.getHost(), ftp.getPort(),
+                ftp.getUsername(), ftp.getPassword());
+        return FtpUtilMulti.download(ftpClient, remotePath);
+    }
+
+    @Override
+    public BreakResult upload(BreakParam breakParam) {
+        return null;
     }
 }

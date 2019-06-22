@@ -1,0 +1,48 @@
+# Server settings
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+#log
+logging:
+  level:
+     ROOT: info
+
+spring:
+    servlet:
+        multipart:
+          max-request-size: 100MB
+          max-file-size: 100MB
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: test
+      database: 15
+      timeout: 3000
+      jedis:
+        pool:
+          max-active: 600
+          max-idle: 30
+          max-wait: 10
+
+remote:
+    file:
+       url: http://localhost:8081/mongodbstu/single/fileupload.do
+
+file:
+   engine:
+      local:
+         path: /home/scd/upload
+      sftp:
+         host: 192.168.1.104
+         port: 22
+         username: test
+         password: testT2018
+         path: /sftpupload
+      ftp:
+         host: 192.168.1.104
+         port: 21
+         username: test
+         password: testT2018
+         path: /ftpupload

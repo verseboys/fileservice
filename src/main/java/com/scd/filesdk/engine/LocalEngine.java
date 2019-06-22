@@ -1,15 +1,15 @@
 package com.scd.filesdk.engine;
 
 import com.scd.filesdk.config.Local;
+import com.scd.filesdk.model.param.BreakParam;
+import com.scd.filesdk.model.vo.BreakResult;
 import com.scd.filesdk.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 /**
  * @author chengdu
@@ -45,5 +45,20 @@ public class LocalEngine extends BaseEngine{
         String targetPath = storePath + File.separator + filename;
         FileUtil.writeByteToFile(fbyte, targetPath);
         return targetPath;
+    }
+
+    @Override
+    public InputStream download(String remotePath) throws FileNotFoundException{
+        File file = new File(remotePath);
+        if(!file.exists() || !file.isFile()){
+            LOGGER.error("file not exists {}",remotePath);
+            throw new FileNotFoundException("file not exists "+remotePath);
+        }
+        return new FileInputStream(remotePath);
+    }
+
+    @Override
+    public BreakResult upload(BreakParam breakParam) {
+        return null;
     }
 }

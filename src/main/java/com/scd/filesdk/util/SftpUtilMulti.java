@@ -41,14 +41,18 @@ public class SftpUtilMulti {
         return channelSftp;
     }
 
-    public static void sftpQuit(ChannelSftp channelSftp) throws JSchException {
-        Session session = channelSftp.getSession();
-        if(session.isConnected()) {
-            session.disconnect();
-        }
-        if(channelSftp.isConnected()){
-            channelSftp.quit();
-            channelSftp.disconnect();
+    public static void sftpQuit(ChannelSftp channelSftp) {
+        try {
+            Session session = channelSftp.getSession();
+            if (session.isConnected()) {
+                session.disconnect();
+            }
+            if (channelSftp.isConnected()) {
+                channelSftp.quit();
+                channelSftp.disconnect();
+            }
+        }catch (JSchException e){
+            LOGGER.error("disconnecte sftp error", e);
         }
         LOGGER.info("client disconnected sftp");
     }
@@ -85,5 +89,16 @@ public class SftpUtilMulti {
         channelSftp.put(inputStream, filename);
         String loginPath = channelSftp.getHome();
         return loginPath + destPath + "/" + filename;
+    }
+
+    /**
+     * 下载文件
+     * @param channelSftp
+     * @param remotePath
+     * @return
+     * @throws SftpException
+     */
+    public static InputStream download(ChannelSftp channelSftp, String remotePath) throws SftpException{
+        return channelSftp.get(remotePath);
     }
 }
