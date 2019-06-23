@@ -1,11 +1,12 @@
 package com.scd.filesdk.util;
 
-import com.scd.filesdk.engine.LocalEngine;
+import com.scd.filesdk.model.vo.BreakResult;
 import com.scd.fileservice.common.CommonConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -229,6 +230,28 @@ public class FileUtil {
         }
     }
 
+    public static String getDestPath(String configPath){
+        String curDate = DateUtil.formatDatetoString(new Date(), DateUtil.YYYYMMDD);
+        return configPath + "/" + curDate;
+    }
+
+    public static boolean renameFile(File toBeRenamed, String toFileNewName) {
+        //检查要重命名的文件是否存在，是否是文件
+        if (!toBeRenamed.exists() || toBeRenamed.isDirectory()) {
+            LOGGER.info("File does not exist: " + toBeRenamed.getName());
+            return false;
+        }
+        String parentDir = toBeRenamed.getParent();
+        File newFile = new File(parentDir + File.separatorChar + toFileNewName);
+        // 重命名的新文件若存在，直接删除
+        if(newFile.exists() && newFile.isFile()){
+            LOGGER.info("delete duplicate file {}", newFile.getAbsolutePath());
+            newFile.delete();
+        }
+        //修改文件名
+        return toBeRenamed.renameTo(newFile);
+    }
+
     public static void main(String[] args) throws IOException {
         String sourcePath = "E:\\Github\\fileservice\\src\\main\\java\\com\\scd\\filesdk\\engine\\BaseEngine.java";
         String targetPath = "/home/scd/upload/aaa" + File.separator + "BaseEngine.java";
@@ -248,5 +271,15 @@ public class FileUtil {
         System.out.println(System.currentTimeMillis());
         String key = String.format(CommonConstant.FILE_INFO, "2434");
         System.out.println(key);
+        String remotePath = "aaaaaa.excel_tmp";
+        remotePath = remotePath.substring(0, (remotePath.length() - "_tmp".length()));
+        System.out.println(remotePath);
+        String ss = "0101001";
+        byte[] ssArr = ss.getBytes();
+        for(int i = 0; i < ssArr.length; i++){
+            if(ssArr[i] == 48){
+                System.out.println(i);
+            }
+        }
     }
 }

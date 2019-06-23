@@ -7,6 +7,12 @@ package com.scd.filesdk.common;
  */
 public interface ServiceInfo {
 
+    interface ENGINE {
+        String LOCAL = "local";
+        String SFTP = "sftp";
+        String FTP = "ftp";
+    }
+
     interface SFTP {
         String host = "192.168.1.104";
         int port = 22;
@@ -26,5 +32,12 @@ public interface ServiceInfo {
         String accessKey = "";
         String secretKey = "";
         String bucket = "chengdu";
+    }
+
+    interface REDIS {
+        String host = "127.0.0.1";
+        int port = 6379;
+        String password = "test";
+        int database = 15;
     }
 }

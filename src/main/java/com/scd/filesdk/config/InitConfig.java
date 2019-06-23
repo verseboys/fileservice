@@ -1,5 +1,6 @@
 package com.scd.filesdk.config;
 
+import com.scd.filesdk.common.ServiceInfo;
 import com.scd.filesdk.engine.BaseEngine;
 import com.scd.filesdk.engine.FtpEngine;
 import com.scd.filesdk.engine.LocalEngine;
@@ -35,8 +36,8 @@ public class InitConfig implements InitializingBean{
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        engineMap.put("local",localEngine);
-        engineMap.put("sftp", sftpEngine);
-        engineMap.put("ftp", ftpEngine);
+        engineMap.put(ServiceInfo.ENGINE.LOCAL,localEngine);
+        engineMap.put(ServiceInfo.ENGINE.SFTP, sftpEngine);
+        engineMap.put(ServiceInfo.ENGINE.FTP, ftpEngine);
     }
 }

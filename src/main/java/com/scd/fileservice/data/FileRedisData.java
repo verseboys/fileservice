@@ -3,13 +3,13 @@ package com.scd.fileservice.data;
 import com.scd.fileservice.common.CommonConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -25,11 +25,12 @@ public class FileRedisData {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    public long saveFileId(String fileId){
+
+    public Long saveFileId(String fileId){
         return stringRedisTemplate.opsForSet().add(CommonConstant.FILES, fileId);
     }
 
-    public boolean existsFileId(String fileId){
+    public Boolean existsFileId(String fileId){
         return stringRedisTemplate.opsForSet().isMember(CommonConstant.FILES, fileId);
     }
 
@@ -67,9 +68,20 @@ public class FileRedisData {
         return objectList;
     }
 
-    public void saveBreakInfo(String fileId, Map<?,?> breakInfoMap){
+    public void saveBreakInfo(String fileId, Map<String,String> breakInfoMap){
         String breakInfoKey = String.format(CommonConstant.FILE_BREAK_INFO, fileId);
         stringRedisTemplate.opsForHash().putAll(breakInfoKey, breakInfoMap);
+    }
+
+    public void updateBreakInfoStatus(String fileId, boolean status){
+        String breakInfoKey = String.format(CommonConstant.FILE_BREAK_INFO, fileId);
+        stringRedisTemplate.opsForHash().put(breakInfoKey,
+                CommonConstant.BREAKINFO.filestatus.getValue(), String.valueOf(status));
+    }
+
+    public boolean existsFileStatus(String fileId){
+        String breakInfoKey = String.format(CommonConstant.FILE_BREAK_INFO, fileId);
+        return stringRedisTemplate.opsForHash().hasKey(breakInfoKey, CommonConstant.BREAKINFO.filestatus.getValue());
     }
 
     public Map<Object, Object> findBreakFileInfo(String fileId){
@@ -77,17 +89,74 @@ public class FileRedisData {
         return stringRedisTemplate.opsForHash().entries(breakInfoKey);
     }
 
+    /**
+     * 初始化记录为0，
+     * 最终期望结果为1
+     * @param fileId
+     * @param chunks
+     */
     public void initBreakRecord(String fileId, int chunks){
-        String breakRecordKey = String.format(CommonConstant.FILE_BREAK_RECORD, fileId);
-        String[] chunkArr = new String[chunks];
-        for(int i=0; i < chunks; i++){
-            chunkArr[i] = "0";
+        if(chunks == 0){
+            return ;
         }
-        stringRedisTemplate.opsForList().rightPushAll(breakRecordKey, chunkArr);
+        String breakRecordKey = String.format(CommonConstant.FILE_BREAK_RECORD, fileId);
+        String breakAllKey = String.format(CommonConstant.FILE_BREAK_EXPECTED, fileId);
+        StringBuffer record = new StringBuffer("");
+        StringBuffer expecteds = new StringBuffer("");
+        for(int i=0; i < chunks; i++){
+            record.append(CommonConstant.CHUNK_NOT_UPLOADED);
+            expecteds.append(CommonConstant.CHUNK_UPLOADED);
+        }
+        stringRedisTemplate.opsForValue().set(breakRecordKey, record.toString());
+        stringRedisTemplate.opsForValue().set(breakAllKey, expecteds.toString());
     }
 
-    public void uploadChunk(String fileId, int index){
+    public boolean existsBreakRecord(String fileId){
         String breakRecordKey = String.format(CommonConstant.FILE_BREAK_RECORD, fileId);
-        stringRedisTemplate.opsForList().set(breakRecordKey, index, CommonConstant.CHUNK_UPLOADED);
+        Boolean keyexists = stringRedisTemplate.hasKey(breakRecordKey);
+        if(keyexists == null || !keyexists.booleanValue()){
+            return false;
+        }
+        if(StringUtils.isEmpty(stringRedisTemplate.opsForValue().get(breakRecordKey))){
+            return false;
+        }
+        return true;
     }
+
+    public String findBreakRecord(String fileId){
+        String breakRecordKey = String.format(CommonConstant.FILE_BREAK_RECORD, fileId);
+        return stringRedisTemplate.opsForValue().get(breakRecordKey);
+    }
+
+    public Boolean deleteBreakRecord(String fileId){
+        String breakRecordKey = String.format(CommonConstant.FILE_BREAK_RECORD, fileId);
+        return stringRedisTemplate.delete(breakRecordKey);
+    }
+
+    public String findBreakExpected(String fileId){
+        String breakAllKey = String.format(CommonConstant.FILE_BREAK_EXPECTED, fileId);
+        return stringRedisTemplate.opsForValue().get(breakAllKey);
+    }
+
+    public Boolean deleteBreakExpected(String fileId){
+        String breakAllKey = String.format(CommonConstant.FILE_BREAK_EXPECTED, fileId);
+        return stringRedisTemplate.delete(breakAllKey);
+    }
+
+    public void setuploadedChunk(String fileId, int index){
+        String breakRecordKey = String.format(CommonConstant.FILE_BREAK_RECORD, fileId);
+        stringRedisTemplate.opsForValue().set(breakRecordKey, CommonConstant.CHUNK_UPLOADED, index);
+    }
+
+
+    public void saveBreakAddress(String fileId, String remotePath){
+        String breakAddressKey = String.format(CommonConstant.FILE_BREAK_ADDRESS, fileId);
+        stringRedisTemplate.opsForList().rightPush(breakAddressKey, remotePath);
+    }
+
+    public List<String> findBreakAddress(String fileId, int chunks){
+        String breakAddressKey = String.format(CommonConstant.FILE_BREAK_ADDRESS, fileId);
+        return stringRedisTemplate.opsForList().range(breakAddressKey, 0, chunks - 1);
+    }
+
 }

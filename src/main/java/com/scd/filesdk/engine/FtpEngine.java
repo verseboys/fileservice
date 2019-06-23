@@ -3,17 +3,18 @@ package com.scd.filesdk.engine;
 import com.scd.filesdk.config.Ftp;
 import com.scd.filesdk.model.param.BreakParam;
 import com.scd.filesdk.model.vo.BreakResult;
-import com.scd.filesdk.util.DateUtil;
 import com.scd.filesdk.util.FileUtil;
 import com.scd.filesdk.util.FtpUtilMulti;
 import org.apache.commons.net.ftp.FTPClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
+import java.util.UUID;
 
 /**
  * @author chengdu
@@ -21,6 +22,8 @@ import java.util.Date;
  */
 @Component
 public class FtpEngine extends BaseEngine {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FtpEngine.class);
 
     @Autowired
     private Ftp ftp;
@@ -34,12 +37,10 @@ public class FtpEngine extends BaseEngine {
 
     @Override
     public String upload(InputStream inputStream, String filename) throws Exception {
-        String remotePath = ftp.getPath();
-        String curDate = DateUtil.formatDatetoString(new Date(), DateUtil.YYYYMMDD);
-        String destPath = remotePath + "/" + curDate;
         // 连接远程客户端
         FTPClient ftpClient = FtpUtilMulti.connectFtp(ftp.getHost(), ftp.getPort(),
                 ftp.getUsername(), ftp.getPassword());
+        String destPath = FileUtil.getDestPath(ftp.getPath());
         // 上传文件
         return FtpUtilMulti.upload(ftpClient, inputStream, destPath, filename);
     }
@@ -64,6 +65,22 @@ public class FtpEngine extends BaseEngine {
 
     @Override
     public BreakResult upload(BreakParam breakParam) {
-        return null;
+        BreakResult breakResult = new BreakResult();
+        String originFileName = breakParam.getName();
+        try {
+            // 连接远程客户端
+            FTPClient ftpClient = FtpUtilMulti.connectFtp(ftp.getHost(), ftp.getPort(),
+                    ftp.getUsername(), ftp.getPassword());
+            InputStream inputStream = breakParam.getFile().getInputStream();
+            String destPath = FileUtil.getDestPath(ftp.getPath());
+            String fileName = UUID.randomUUID().toString() + "_" + originFileName;
+            String storePath = FtpUtilMulti.upload(ftpClient, inputStream, destPath, fileName);
+            breakResult.setFilePath(storePath);
+            breakResult.setWriteSuccess(true);
+        }catch (Exception e){
+            LOGGER.error("upload chunk file to Ftp error filename : {} chunk : {}", originFileName, breakParam.getChunk());
+            breakResult.setWriteSuccess(false);
+        }
+        return breakResult;
     }
 }

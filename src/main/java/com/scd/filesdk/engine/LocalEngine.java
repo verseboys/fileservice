@@ -58,7 +58,35 @@ public class LocalEngine extends BaseEngine{
     }
 
     @Override
-    public BreakResult upload(BreakParam breakParam) {
-        return null;
+    public BreakResult upload(BreakParam param) {
+        String fileName = param.getName();
+        String tempDirPath = local.getPath() + "/" + param.getMd5();
+        String tempFileName = fileName + "_tmp";
+        File tmpDir = new File(tempDirPath);
+        File tmpFile = new File(tempDirPath, tempFileName);
+        if (!tmpDir.exists()) {
+            tmpDir.mkdirs();
+        }
+        int chunk = param.getChunk();
+        long chunkSize = param.getChunkSize();
+        long offset = chunk * chunkSize;
+        LOGGER.info("filename : {}, chunk : {}, chunksize : {}", fileName, chunk, chunkSize);
+        BreakResult breakResult = new BreakResult();
+        try {
+            RandomAccessFile accessTmpFile = new RandomAccessFile(tmpFile, "rw");
+            //定位到该分片的偏移量
+            accessTmpFile.seek(offset);
+            //写入该分片数据
+            accessTmpFile.write(param.getFile().getBytes());
+            // 关闭随机读取文件
+            accessTmpFile.close();
+            breakResult.setFilePath(tmpFile.getAbsolutePath());
+            breakResult.setWriteSuccess(true);
+            breakResult.setTempFile(tmpFile);
+        }catch (Exception e){
+            LOGGER.error("upload chunk file to Local error filename : {} chunk : {}", fileName, chunk);
+            breakResult.setWriteSuccess(false);
+        }
+        return breakResult;
     }
 }

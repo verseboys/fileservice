@@ -13,14 +13,17 @@ public class BreakParam {
     private String uid;
 
     private String id;
-    //总分片数量
+
+    // 总分片数量
     private int chunks;
 
-    //当前为第几块分片
+    // 当前为第几块分片
     private int chunk;
 
+    // 切片大小
     private long chunkSize;
 
+    // 文件总大小
     private long size;
     //文件名
     private String name;

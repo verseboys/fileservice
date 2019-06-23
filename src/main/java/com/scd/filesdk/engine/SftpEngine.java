@@ -6,25 +6,24 @@ import com.jcraft.jsch.SftpException;
 import com.scd.filesdk.config.Sftp;
 import com.scd.filesdk.model.param.BreakParam;
 import com.scd.filesdk.model.vo.BreakResult;
-import com.scd.filesdk.util.DateUtil;
 import com.scd.filesdk.util.FileUtil;
-import com.scd.filesdk.util.SftpUtil;
 import com.scd.filesdk.util.SftpUtilMulti;
-import netscape.javascript.JSException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
+import java.util.UUID;
 
 /**
  * @author chengdu
  */
 @Component
 public class SftpEngine extends BaseEngine{
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SftpEngine.class);
 
     @Autowired
     private Sftp sftp;
@@ -39,12 +38,10 @@ public class SftpEngine extends BaseEngine{
 
     @Override
     public String upload(InputStream inputStream, String filename) throws JSchException, SftpException {
-        String remotePath = sftp.getPath();
-        String curDate = DateUtil.formatDatetoString(new Date(), DateUtil.YYYYMMDD);
-        String destPath = remotePath + "/" + curDate;
         // 连接远程客户端
         ChannelSftp channelSftp = SftpUtilMulti.connectSftp(sftp.getHost(), sftp.getPort(),
                 sftp.getUsername(), sftp.getPassword());
+        String destPath = FileUtil.getDestPath(sftp.getPath());
         // 上传文件
         return SftpUtilMulti.upload(channelSftp, inputStream, destPath, filename);
     }
@@ -69,6 +66,24 @@ public class SftpEngine extends BaseEngine{
 
     @Override
     public BreakResult upload(BreakParam breakParam) {
-        return null;
+        BreakResult breakResult = new BreakResult();
+        String originFileName = breakParam.getName();
+        int curChunk = breakParam.getChunk();
+        try {
+            // 连接远程客户端
+            ChannelSftp channelSftp = SftpUtilMulti.connectSftp(sftp.getHost(), sftp.getPort(),
+                    sftp.getUsername(), sftp.getPassword());
+            InputStream inputStream = breakParam.getFile().getInputStream();
+            String destPath = FileUtil.getDestPath(sftp.getPath());
+            String fileName = UUID.randomUUID().toString() + "_" + originFileName;
+            // 上传文件
+            String storePath = SftpUtilMulti.upload(channelSftp, inputStream, destPath, fileName);
+            breakResult.setWriteSuccess(true);
+            breakResult.setFilePath(storePath);
+        }catch (Exception e){
+            LOGGER.error("upload chunk file to Sftp error filename : {} chunk : {}", originFileName, breakParam.getChunk());
+            breakResult.setWriteSuccess(false);
+        }
+        return breakResult;
     }
 }
