@@ -212,11 +212,7 @@ public class FileUtil {
         if(file.isDirectory()){
             File[] files = file.listFiles();
             for(File f : files){
-                if(f.isDirectory()){
-                    getFilePaths(f.getAbsolutePath(), pathList);
-                }else{
-                    pathList.add(f.getAbsolutePath());
-                }
+                getFilePaths(f.getAbsolutePath(), pathList);
             }
         }else{
             pathList.add(filepath);
@@ -262,12 +258,6 @@ public class FileUtil {
         List<String> filePaths = new ArrayList<>(10);
         getFilePaths(basePath, filePaths);
         System.out.println(filePaths);
-        Set<String> filesets = new HashSet<>();
-        for(int i = 0; i < 2; i++) {
-            String uuid = UUID.randomUUID().toString();
-            filesets.add(uuid);
-        }
-        System.out.println(filesets);
         System.out.println(System.currentTimeMillis());
         String key = String.format(CommonConstant.FILE_INFO, "2434");
         System.out.println(key);

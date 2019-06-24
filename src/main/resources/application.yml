@@ -7,7 +7,7 @@ server:
 #log
 logging:
   level:
-     ROOT: info
+     ROOT: debug
 
 spring:
     servlet:
@@ -25,6 +25,13 @@ spring:
           max-active: 600
           max-idle: 30
           max-wait: 10
+    data:
+      mongodb:
+        host: 127.0.0.1
+        port: 27017
+        database: mongotest
+        username: chengdu
+        password: chengdu
 
 remote:
     file:

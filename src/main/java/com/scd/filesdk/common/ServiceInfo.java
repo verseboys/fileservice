@@ -11,6 +11,7 @@ public interface ServiceInfo {
         String LOCAL = "local";
         String SFTP = "sftp";
         String FTP = "ftp";
+        String MONGO = "mongo";
     }
 
     interface SFTP {

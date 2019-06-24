@@ -4,6 +4,8 @@ file upload download
 > 1.支持多种存储服务器上传、下载 local(上传到本地服务器)、ftp(转发到ftp文件服务器)、sftp(转发到sftp文件服务器)、支持断点续传
 >
 > 2.存储记录信息使用 redis记录， 文件id可用与业务数据库关联
+>
+> 3.MongoDb存储文件，断点续传存储到MongoDb待实现，太晚了，先休息啦
 
 
 

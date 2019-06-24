@@ -75,13 +75,13 @@ public class SftpEngine extends BaseEngine{
                     sftp.getUsername(), sftp.getPassword());
             InputStream inputStream = breakParam.getFile().getInputStream();
             String destPath = FileUtil.getDestPath(sftp.getPath());
-            String fileName = UUID.randomUUID().toString() + "_" + originFileName;
+            String fileName = System.currentTimeMillis() + "_" + originFileName;
             // 上传文件
             String storePath = SftpUtilMulti.upload(channelSftp, inputStream, destPath, fileName);
             breakResult.setWriteSuccess(true);
             breakResult.setFilePath(storePath);
         }catch (Exception e){
-            LOGGER.error("upload chunk file to Sftp error filename : {} chunk : {}", originFileName, breakParam.getChunk());
+            LOGGER.error("upload chunk file to Sftp error filename : {} chunk : {}", originFileName, curChunk);
             breakResult.setWriteSuccess(false);
         }
         return breakResult;

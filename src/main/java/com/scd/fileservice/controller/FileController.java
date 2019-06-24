@@ -1,5 +1,8 @@
 package com.scd.fileservice.controller;
 
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSDownloadStream;
+import com.mongodb.client.gridfs.model.GridFSFile;
 import com.scd.filesdk.engine.BaseEngine;
 import com.scd.filesdk.conversion.FileEngineConversion;
 import com.scd.filesdk.model.param.BreakParam;
@@ -7,14 +10,20 @@ import com.scd.fileservice.data.FileRedisData;
 import com.scd.fileservice.model.vo.BreakStatus;
 import com.scd.fileservice.model.vo.Result;
 import com.scd.fileservice.service.FileService;
+import com.scd.fileservice.utils.FileDownLoadUtil;
 import com.scd.fileservice.utils.ResultUtil;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
@@ -34,6 +43,15 @@ public class FileController {
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private GridFsTemplate gridFsTemplate;
+
+    @Autowired
+    private GridFSBucket gridFSBucket;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileController.class);
 
@@ -78,7 +96,7 @@ public class FileController {
         String result;
         try{
             result = fileService.download(fileId, response);
-            if(StringUtils.isEmpty(result)){
+            if(!StringUtils.isEmpty(result)){
                 return ResultUtil.errorWithOutData(result);
             }
         }catch (Exception e){
@@ -104,6 +122,36 @@ public class FileController {
         map.put("keys", keys);
         map.put("deleted", deleted);
         return map;
+    }
+
+    @RequestMapping(value = "/mongo/test", method = RequestMethod.POST)
+    public String monGoTest(@RequestParam("file") MultipartFile multipartFile){
+        try {
+            InputStream inputStream = multipartFile.getInputStream();
+            String fileName = multipartFile.getOriginalFilename();
+//            ObjectId objectId = gridFsTemplate.store(inputStream, fileName);
+            ObjectId objectId = gridFSBucket.uploadFromStream(fileName, inputStream);
+            return objectId.toHexString();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    @RequestMapping(value = "/mongo/down", method = RequestMethod.GET)
+    public void monGoDown(String fileId, HttpServletResponse response){
+        try {
+            // String 如何转换未 ObjectId ???
+//            Query query = Query.query(Criteria.where("_id").is(fileId));
+            // 查询单个文件
+//            GridFSFile gfsfile = gridFsTemplate.findOne(query);
+            ObjectId objectId = new ObjectId(fileId);
+            GridFSDownloadStream gridFSDownloadStream = gridFSBucket.openDownloadStream(objectId);
+            GridFSFile gridFSFile = gridFSDownloadStream.getGridFSFile();
+            FileDownLoadUtil.outputFile(response, gridFSDownloadStream, gridFSFile.getFilename());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 }

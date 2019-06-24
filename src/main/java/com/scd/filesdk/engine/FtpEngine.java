@@ -73,7 +73,7 @@ public class FtpEngine extends BaseEngine {
                     ftp.getUsername(), ftp.getPassword());
             InputStream inputStream = breakParam.getFile().getInputStream();
             String destPath = FileUtil.getDestPath(ftp.getPath());
-            String fileName = UUID.randomUUID().toString() + "_" + originFileName;
+            String fileName = System.currentTimeMillis() + "_" + originFileName;
             String storePath = FtpUtilMulti.upload(ftpClient, inputStream, destPath, fileName);
             breakResult.setFilePath(storePath);
             breakResult.setWriteSuccess(true);

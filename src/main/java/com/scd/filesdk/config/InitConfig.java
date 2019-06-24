@@ -1,10 +1,7 @@
 package com.scd.filesdk.config;
 
 import com.scd.filesdk.common.ServiceInfo;
-import com.scd.filesdk.engine.BaseEngine;
-import com.scd.filesdk.engine.FtpEngine;
-import com.scd.filesdk.engine.LocalEngine;
-import com.scd.filesdk.engine.SftpEngine;
+import com.scd.filesdk.engine.*;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,6 +24,9 @@ public class InitConfig implements InitializingBean{
     @Autowired
     private FtpEngine ftpEngine;
 
+    @Autowired
+    private MongoEngine mongoEngine;
+
     public Map<String, BaseEngine> getEngineMap() {
         return engineMap;
     }
@@ -39,5 +39,6 @@ public class InitConfig implements InitializingBean{
         engineMap.put(ServiceInfo.ENGINE.LOCAL,localEngine);
         engineMap.put(ServiceInfo.ENGINE.SFTP, sftpEngine);
         engineMap.put(ServiceInfo.ENGINE.FTP, ftpEngine);
+        engineMap.put(ServiceInfo.ENGINE.MONGO, mongoEngine);
     }
 }

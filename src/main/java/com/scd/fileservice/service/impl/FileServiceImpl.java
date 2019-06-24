@@ -92,7 +92,7 @@ public class FileServiceImpl implements FileService {
                 saveBreak(breakParam, breakResult, type);
             }
             // 移除上传块记录、期望上传记录
-//            deleteUploadRecord(breakParam);
+            deleteUploadRecord(breakParam);
             result = CommonConstant.RESULT_ALL_UPLOAD;
         }
         return breakParam.getChunk() + "_" + md5 + "_" + result;

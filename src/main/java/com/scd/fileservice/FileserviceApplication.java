@@ -1,9 +1,14 @@
 package com.scd.fileservice;
 
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSBuckets;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -31,5 +36,14 @@ public class FileserviceApplication {
 		source.registerCorsConfiguration("/**", buildConfig());
 		return new CorsFilter(source);
 	}
+
+//	@Autowired
+//	private MongoDbFactory mongoDbFactory;
+//
+//	@Bean
+//	public GridFSBucket getGridFSBuckets() {
+//		MongoDatabase db = mongoDbFactory.getDb();
+//		return GridFSBuckets.create(db);
+//	}
 
 }
