@@ -1,9 +1,14 @@
 package com.scd.test.sftp.task;
 
 import com.jcraft.jsch.ChannelSftp;
+import com.mongodb.client.gridfs.GridFSBucket;
 import com.scd.filesdk.common.ServiceInfo;
+import com.scd.filesdk.engine.FtpEngine;
 import com.scd.filesdk.util.*;
 import org.apache.commons.net.ftp.FTPClient;
+import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -25,10 +30,27 @@ public class SftpTask implements Callable<String> {
     public static final String username = ServiceInfo.FTP.username;
     public static final String password = ServiceInfo.FTP.password;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SftpTask.class);
+
     private String filepath;
 
     public SftpTask(String filepath){
         this.filepath = filepath;
+    }
+
+    private static GridFSBucket gridFSBucket;
+
+    public static void setGridFSBucket(GridFSBucket bucket){
+        gridFSBucket = bucket;
+    }
+
+    private String fileName;
+
+    private InputStream inputStream;
+
+    public SftpTask(String fileName, FileInputStream fileInputStream){
+        this.fileName = fileName;
+        inputStream = fileInputStream;
     }
 
     /**
@@ -78,11 +100,18 @@ public class SftpTask implements Callable<String> {
         return result;
     }
 
+    public String testGridFSBucket() throws Exception {
+        LOGGER.info(Thread.currentThread().getName() + " upload file {} time {}", fileName, System.currentTimeMillis());
+        ObjectId objectId = gridFSBucket.uploadFromStream(fileName, inputStream);
+        return objectId.toHexString();
+    }
+
     @Override
     public String call() throws Exception {
 //        return testSftpUtil();
 //        return testSftpMulti();
 //        return testFtpUtil();
-        return testFtpMulti();
+//        return testFtpMulti();
+        return testGridFSBucket();
     }
 }

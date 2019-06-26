@@ -75,7 +75,7 @@ public class SftpEngine extends BaseEngine{
                     sftp.getUsername(), sftp.getPassword());
             InputStream inputStream = breakParam.getFile().getInputStream();
             String destPath = FileUtil.getDestPath(sftp.getPath());
-            String fileName = System.currentTimeMillis() + "_" + originFileName;
+            String fileName = curChunk + "_" + breakParam.getChunkSize() + "_" + originFileName;
             // 上传文件
             String storePath = SftpUtilMulti.upload(channelSftp, inputStream, destPath, fileName);
             breakResult.setWriteSuccess(true);

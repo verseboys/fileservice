@@ -1,8 +1,14 @@
 package com.scd.fileservice;
 
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.scd.filesdk.engine.FtpEngine;
+import com.scd.filesdk.util.FileUtil;
 import com.scd.fileservice.utils.FileUploadUtil;
+import com.scd.test.sftp.task.SftpTask;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
@@ -18,16 +24,27 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ComponentScan(basePackages = {"com.scd.fileservice"})
+@ComponentScan(basePackages = {"com.scd.filesdk","com.scd.fileservice"})
 public class FileserviceApplicationTests {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(FileserviceApplicationTests.class);
 
 	@Autowired
 	private FileUploadUtil fileUploadUtil;
+
+	@Autowired
+	private GridFSBucket gridFSBucket;
 
 	@Test
 	public void contextLoads() {
@@ -82,5 +99,29 @@ public class FileserviceApplicationTests {
 		String filePath = "C:/Users/chengdu/Desktop/filetype/database.PNG";
 		InputStream inputStream = new FileInputStream(filePath);
 		fileUploadUtil.uploadFileByInputStreamEx(inputStream, "aa.png");
+	}
+
+	@Test
+	public void testMultiThreadMongo() throws Exception {
+		String basePath = "C:\\Users\\chengdu\\Desktop\\filetype";
+		List<String> filePaths = new ArrayList<>(10);
+		FileUtil.getFilePaths(basePath, filePaths);
+		// 添加 gridFSBucket 属性
+		SftpTask.setGridFSBucket(gridFSBucket);
+		ExecutorService threadPool = Executors.newFixedThreadPool(filePaths.size());
+		List<Future<String>> futureList = new ArrayList<>(filePaths.size());
+		for(String filepath : filePaths){
+			FileInputStream fileInputStream = new FileInputStream(filepath);
+			String fileName = FileUtil.getFileName(filepath);
+			SftpTask sftpTask = new SftpTask(fileName, fileInputStream);
+			Future<String> stringFuture = threadPool.submit(sftpTask);
+			futureList.add(stringFuture);
+		}
+		// get 阻塞等待
+		for(Future<String> stringFuture : futureList){
+			System.out.println(stringFuture.get());
+		}
+		LOGGER.info("child thread over ");
+		threadPool.shutdown();
 	}
 }

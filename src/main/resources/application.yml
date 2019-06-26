@@ -7,7 +7,7 @@ server:
 #log
 logging:
   level:
-     ROOT: debug
+     ROOT: info
 
 spring:
     servlet:

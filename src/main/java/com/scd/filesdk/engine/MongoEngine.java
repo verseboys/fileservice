@@ -4,7 +4,10 @@ import com.mongodb.client.gridfs.GridFSBucket;
 import com.scd.filesdk.model.param.BreakParam;
 import com.scd.filesdk.model.vo.BreakResult;
 import com.scd.filesdk.util.FileUtil;
+import com.scd.filesdk.util.SftpUtilMulti;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +21,11 @@ import java.io.InputStream;
 @Component
 public class MongoEngine extends BaseEngine{
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MongoEngine.class);
+
     @Autowired
     private GridFSBucket gridFSBucket;
+
 
     @Override
     public String upload(String filePath) throws Exception {
@@ -52,6 +58,21 @@ public class MongoEngine extends BaseEngine{
 
     @Override
     public BreakResult upload(BreakParam breakParam) {
-        return null;
+        BreakResult breakResult = new BreakResult();
+        String originFileName = breakParam.getName();
+        int curChunk = breakParam.getChunk();
+        try {
+            // 上传文件
+            InputStream inputStream = breakParam.getFile().getInputStream();
+            // 合并文件时好标识
+            String fileName =  curChunk + "_" + breakParam.getChunkSize() + "_" + originFileName;
+            String storePath = upload(inputStream, fileName);
+            breakResult.setWriteSuccess(true);
+            breakResult.setFilePath(storePath);
+        }catch (Exception e){
+            LOGGER.error("upload chunk file to Mongo error filename : {} chunk : {}", originFileName, curChunk);
+            breakResult.setWriteSuccess(false);
+        }
+        return breakResult;
     }
 }
