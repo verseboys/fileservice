@@ -1,11 +1,29 @@
 # fileservice
 file upload download
 
-> 1.支持多种存储服务器上传、下载 local(上传到本地服务器)、ftp(转发到ftp文件服务器)、sftp(转发到sftp文件服务器)、支持断点续传
+> 1.支持多种存储服务器上传、下载 
 >
-> 2.存储记录信息使用 redis记录， 文件id可用与业务数据库关联
+> 2.支持大文件切片上传
 >
-> 3.MongoDb存储文件，断点续传存储到MongoDb待实现，太晚了，先休息啦
+> 3.存储记录信息使用 redis记录， 文件id可用于与业务数据库关联
+>
+> 4.目前支持上传文件到 Local、SFTP、FTP、Mongo
+>
+> 5.支持集群环境部署
+>
+> 6.小文件推荐使用 MongoDB 存储
+
+
+
+# 应用简介
+
+
+
+>框架  ：SpringBoot 
+>
+>数据库 ：Redis
+>
+>支持上传的服务器 :  SFTP、FTP、Mongo, 也可以存储到部署服务器
 
 
 
