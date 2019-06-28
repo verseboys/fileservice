@@ -1,9 +1,11 @@
 package com.scd.fileservice.service.impl;
 
 import com.scd.filesdk.common.ServiceInfo;
-import com.scd.filesdk.conversion.FileEngineConversion;
+import com.scd.filesdk.conversion.FileMapperTool;
 import com.scd.filesdk.engine.BaseEngine;
 import com.scd.filesdk.model.param.BreakParam;
+import com.scd.filesdk.model.task.BreakTask;
+import com.scd.filesdk.model.vo.BreakMergeResult;
 import com.scd.filesdk.model.vo.BreakResult;
 import com.scd.filesdk.util.FileUtil;
 import com.scd.fileservice.common.CommonConstant;
@@ -14,14 +16,19 @@ import com.scd.fileservice.utils.FileDownLoadUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * @author chengdu
@@ -35,11 +42,18 @@ public class FileServiceImpl implements FileService {
     @Autowired
     private FileRedisData fileRedisData;
 
+    @Autowired
+    @Qualifier(value = "fileThreadPool")
+    private ExecutorService fileThreadPool;
+
+    @Value("${temp.breakpath}")
+    private String downTemp;
+
     @Override
     public String upload(MultipartFile multipartFile, String type) throws Exception {
         InputStream inputStream = multipartFile.getInputStream();
         String fileName = multipartFile.getOriginalFilename();
-        BaseEngine baseEngine = FileEngineConversion.convertFileEngine(type);
+        BaseEngine baseEngine = FileMapperTool.getFileEngine(type);
         String remotePath = baseEngine.upload(inputStream, fileName);
         Map<String, String> fileInfo = createFileInfo(multipartFile, type, remotePath);
         String fileId = UUID.randomUUID().toString();
@@ -57,21 +71,61 @@ public class FileServiceImpl implements FileService {
         Object uploadtype = fileInfoMap.get(CommonConstant.FILEINFO.uploadtype.getValue());
         Object remotePath = fileInfoMap.get(CommonConstant.FILEINFO.fileaddress.getValue());
         Object fileName = fileInfoMap.get(CommonConstant.FILEINFO.filename.getValue());
+        Object storetype = fileInfoMap.get(CommonConstant.FILEINFO.storetype.getValue());
         if(StringUtils.isEmpty(uploadtype) || StringUtils.isEmpty(remotePath)
-                || StringUtils.isEmpty(fileName)){
+                || StringUtils.isEmpty(fileName) || StringUtils.isEmpty(storetype)){
             return "data exception";
         }
-        BaseEngine baseEngine = FileEngineConversion.convertFileEngine(uploadtype.toString());
-        // 下载文件
-        InputStream inputStream = baseEngine.download(remotePath.toString());
-        // 输出文件
-        FileDownLoadUtil.outputFile(response, inputStream, fileName.toString());
+        // 存储类型为所有的时候, 直接下载
+        if(CommonConstant.STORE_TYPE_ALL.equals(storetype)) {
+            BaseEngine baseEngine = FileMapperTool.getFileEngine(uploadtype.toString());
+            // 下载文件
+            InputStream inputStream = baseEngine.download(remotePath.toString());
+            // 输出文件
+            FileDownLoadUtil.outputFile(response, inputStream, fileName.toString());
+        }else{
+            // 查询断点信息
+            Map<Object, Object> breaFilekMap = fileRedisData.findBreakFileInfo(fileId);
+            Object status = breaFilekMap.get("file_status");
+            if( ! CommonConstant.STR_TRUE.equals(status)){
+                return "file is uploading";
+            }
+            Object chunkNum = breaFilekMap.get("chunk_num");
+            Object chunkSizeObj = breaFilekMap.get("chunk_size");
+            int chunks = Integer.valueOf(chunkNum.toString());
+            List<String> fileAddress = fileRedisData.findBreakAddress(fileId, chunks);
+            long chunkSize = Long.valueOf(chunkSizeObj.toString());
+            // 创建临时文件目录
+            String tempPath = downTemp + File.separator + System.currentTimeMillis() + File.separator + fileName;
+            File tempFile = FileUtil.createFile(tempPath);
+            List<Future<BreakMergeResult>> futureList = new ArrayList<>(fileAddress.size());
+            for(String address : fileAddress){
+                String[] addArr = address.split("_");
+                String chunkStr = addArr[0];
+                String fileaddress = addArr[1];
+                BreakTask breakTask = new BreakTask(Integer.valueOf(chunkStr),chunkSize,
+                        uploadtype.toString(), fileaddress, tempFile);
+                Future<BreakMergeResult> future = fileThreadPool.submit(breakTask);
+                futureList.add(future);
+            }
+            for(Future<BreakMergeResult> future : futureList){
+                try {
+                    BreakMergeResult breakMergeResult = future.get();
+                    LOGGER.info("merge file task result {}", breakMergeResult);
+                }catch (Exception e){
+                    LOGGER.error("get merge file task error");
+                }
+            }
+            InputStream inputStream = new FileInputStream(tempFile);
+            // 输出文件
+            FileDownLoadUtil.outputFile(response, inputStream, fileName.toString());
+        }
         return "";
     }
 
     @Override
     public String breakUpload(BreakParam breakParam, String type) {
-        BaseEngine baseEngine = FileEngineConversion.convertFileEngine(type);
+        BaseEngine baseEngine = FileMapperTool.getFileEngine(type);
         BreakResult breakResult = baseEngine.upload(breakParam);
         if(!breakResult.isWriteSuccess()){
             return "upload to " + type + " error";

@@ -4,7 +4,7 @@ import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSDownloadStream;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.scd.filesdk.engine.BaseEngine;
-import com.scd.filesdk.conversion.FileEngineConversion;
+import com.scd.filesdk.conversion.FileMapperTool;
 import com.scd.filesdk.model.param.BreakParam;
 import com.scd.fileservice.data.FileRedisData;
 import com.scd.fileservice.model.vo.BreakStatus;
@@ -16,8 +16,6 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.StringUtils;
@@ -57,7 +55,7 @@ public class FileController {
 
     @RequestMapping(value = "/test/engine/{type}",method = RequestMethod.POST)
     public String testEngine(@PathVariable(value = "type") String type, @RequestParam("file") MultipartFile multipartFile) throws Exception{
-        BaseEngine baseEngine = FileEngineConversion.convertFileEngine(type);
+        BaseEngine baseEngine = FileMapperTool.getFileEngine(type);
         String originName = multipartFile.getOriginalFilename();
         // inputstream
         InputStream inputStream = multipartFile.getInputStream();

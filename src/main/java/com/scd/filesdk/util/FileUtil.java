@@ -58,7 +58,7 @@ public class FileUtil {
         if(lastSeparator != -1){
             return filepath.substring(0, lastSeparator);
         }else{
-            throw new RuntimeException("can not find filepath [filepath] :" + filepath);
+            throw new RuntimeException("can not find filepath " + filepath);
         }
     }
 
@@ -246,6 +246,32 @@ public class FileUtil {
         }
         //修改文件名
         return toBeRenamed.renameTo(newFile);
+    }
+
+    /**
+     * byte 数组写入文件
+     * @param bytes
+     * @param offset
+     * @param file
+     */
+    public static void mergeRemoteFile(byte[] bytes, long offset, File file) {
+        try {
+            RandomAccessFile accessTmpFile = new RandomAccessFile(file, "rw");
+            //定位到该分片的偏移量
+            accessTmpFile.seek(offset);
+            //写入该分片数据
+            accessTmpFile.write(bytes);
+            // 关闭随机读取文件
+            accessTmpFile.close();
+        }catch (Exception e){
+            LOGGER.info("merge remote file error, location {}", offset);
+        }
+    }
+
+    public static File createFile(String filePath){
+        getFileDir(filePath);
+        mkdirs(filePath);
+        return new File(filePath);
     }
 
     public static void main(String[] args) throws IOException {

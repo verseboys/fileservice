@@ -16,4 +16,5 @@ public class BreakResult {
     private boolean writeSuccess;
 
     private File tempFile;
+
 }

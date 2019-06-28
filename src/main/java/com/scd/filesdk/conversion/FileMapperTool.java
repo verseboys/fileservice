@@ -12,7 +12,7 @@ import java.util.Map;
  * @author chengdu
  */
 @Component
-public class FileEngineConversion {
+public class FileMapperTool {
 
     private static InitConfig initConfig;
 
@@ -21,7 +21,7 @@ public class FileEngineConversion {
         initConfig = config;
     }
 
-    public static BaseEngine convertFileEngine(String engineType){
+    public static BaseEngine getFileEngine(String engineType){
         Map<String, BaseEngine> engineMap = initConfig.getEngineMap();
         if(!engineMap.containsKey(engineType)){
             throw new NoSuchEngineExcetion("no such engine " + engineType +
