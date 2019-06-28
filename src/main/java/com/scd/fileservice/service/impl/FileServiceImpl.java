@@ -1,7 +1,7 @@
 package com.scd.fileservice.service.impl;
 
 import com.scd.filesdk.common.ServiceInfo;
-import com.scd.filesdk.conversion.FileMapperTool;
+import com.scd.filesdk.tools.FileMapperTool;
 import com.scd.filesdk.engine.BaseEngine;
 import com.scd.filesdk.model.param.BreakParam;
 import com.scd.filesdk.model.task.BreakTask;

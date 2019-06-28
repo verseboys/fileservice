@@ -1,6 +1,6 @@
 package com.scd.filesdk.model.task;
 
-import com.scd.filesdk.conversion.FileMapperTool;
+import com.scd.filesdk.tools.FileMapperTool;
 import com.scd.filesdk.engine.BaseEngine;
 import com.scd.filesdk.model.vo.BreakMergeResult;
 import com.scd.filesdk.util.FileUtil;
