@@ -54,9 +54,9 @@ file:
          password: testT2018
          path: /ftpupload
 
-download:
-      pool:
-        threads: 66
+pool:
+  file:
+     threads: 3
 
 temp:
   breakpath: temp/breakmerge
