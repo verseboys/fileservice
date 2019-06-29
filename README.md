@@ -9,7 +9,7 @@ file upload download
 >
 > 4.目前支持上传文件到 Local、SFTP、FTP、Mongo
 >
-> 5.支持集群环境部署
+> 5.支持集群环境部署(Local 类型暂不支持)
 >
 > 6.小文件推荐使用 MongoDB 存储
 

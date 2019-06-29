@@ -12,6 +12,7 @@ import com.scd.fileservice.model.vo.Result;
 import com.scd.fileservice.service.FileService;
 import com.scd.fileservice.utils.FileDownLoadUtil;
 import com.scd.fileservice.utils.ResultUtil;
+import io.swagger.annotations.Api;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import java.util.*;
  * @author chengdu
  */
 @RestController
+@Api(tags = "File Upload Download")
 public class FileController {
 
     @Autowired
