@@ -70,7 +70,7 @@ public class LocalEngine extends BaseEngine{
         int chunk = param.getChunk();
         long chunkSize = param.getChunkSize();
         long offset = chunk * chunkSize;
-        LOGGER.info("filename : {}, chunk : {}, chunksize : {}", fileName, chunk, chunkSize);
+        LOGGER.info("【Local】 filename : {}, chunk : {}, chunksize : {}", fileName, chunk, chunkSize);
         BreakResult breakResult = new BreakResult();
         try {
             RandomAccessFile accessTmpFile = new RandomAccessFile(tmpFile, "rw");

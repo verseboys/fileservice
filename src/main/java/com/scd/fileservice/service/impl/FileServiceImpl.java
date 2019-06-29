@@ -1,5 +1,6 @@
 package com.scd.fileservice.service.impl;
 
+import com.mongodb.client.gridfs.GridFSDownloadStream;
 import com.scd.filesdk.common.ServiceInfo;
 import com.scd.filesdk.tools.FileMapperTool;
 import com.scd.filesdk.engine.BaseEngine;
@@ -28,6 +29,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -72,12 +74,15 @@ public class FileServiceImpl implements FileService {
         Object remotePath = fileInfoMap.get(CommonConstant.FILEINFO.fileaddress.getValue());
         Object fileName = fileInfoMap.get(CommonConstant.FILEINFO.filename.getValue());
         Object storetype = fileInfoMap.get(CommonConstant.FILEINFO.storetype.getValue());
-        if(StringUtils.isEmpty(uploadtype) || StringUtils.isEmpty(remotePath)
-                || StringUtils.isEmpty(fileName) || StringUtils.isEmpty(storetype)){
+        if(StringUtils.isEmpty(uploadtype) || StringUtils.isEmpty(fileName)
+                || StringUtils.isEmpty(storetype)){
             return "data exception";
         }
         // 存储类型为所有的时候, 直接下载
         if(CommonConstant.STORE_TYPE_ALL.equals(storetype)) {
+            if(StringUtils.isEmpty(remotePath)){
+                return "can not find remote path";
+            }
             BaseEngine baseEngine = FileMapperTool.getFileEngine(uploadtype.toString());
             // 下载文件
             InputStream inputStream = baseEngine.download(remotePath.toString());
@@ -98,11 +103,14 @@ public class FileServiceImpl implements FileService {
             // 创建临时文件目录
             String tempPath = downTemp + File.separator + System.currentTimeMillis() + File.separator + fileName;
             File tempFile = FileUtil.createFile(tempPath);
+            if(tempFile.exists() && tempFile.isFile()){
+                tempFile.delete();
+            }
             List<Future<BreakMergeResult>> futureList = new ArrayList<>(fileAddress.size());
             for(String address : fileAddress){
-                String[] addArr = address.split("_");
-                String chunkStr = addArr[0];
-                String fileaddress = addArr[1];
+                int index = address.indexOf("_");
+                String chunkStr = address.substring(0,index);
+                String fileaddress = address.substring(index + 1);
                 BreakTask breakTask = new BreakTask(Integer.valueOf(chunkStr),chunkSize,
                         uploadtype.toString(), fileaddress, tempFile);
                 Future<BreakMergeResult> future = fileThreadPool.submit(breakTask);
@@ -183,7 +191,7 @@ public class FileServiceImpl implements FileService {
 
     private void deleteUploadRecord(BreakParam breakParam) {
         fileRedisData.deleteBreakRecord(breakParam.getMd5());
-        fileRedisData.deleteBreakRecord(breakParam.getMd5());
+        fileRedisData.deleteBreakExpected(breakParam.getMd5());
     }
 
     private void saveBreak(BreakParam breakParam, BreakResult breakResult, String type) {

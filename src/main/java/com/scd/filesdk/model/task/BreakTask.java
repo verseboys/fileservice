@@ -44,15 +44,14 @@ public class BreakTask implements Callable<BreakMergeResult> {
         String fileName = tempFile.getName();
         breakMergeResult.setFileName(fileName);
         try {
+            LOGGER.info("merge file {}, chunk {}, chunsize {}", fileName, chunk, chunkSize);
             BaseEngine baseEngine = FileMapperTool.getFileEngine(uploadType);
-            InputStream inputStream = baseEngine.download(address);
-            int size = inputStream.available();
-            byte[] bytes = new byte[size];
-            inputStream.read(bytes);
+            byte[] bytes = baseEngine.downloadByte(address);
             long offset = chunk * chunkSize;
             FileUtil.mergeRemoteFile(bytes, offset, tempFile);
             breakMergeResult.setMergeStatus(true);
         }catch (Exception e){
+            e.printStackTrace();
             LOGGER.error("merge file filename {} chunk {} error", fileName, chunk);
         }
         return breakMergeResult;

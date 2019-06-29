@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 public class ThreadPoolConfig {
 
 
-    @Value("${download.pool.threads}")
+    @Value("${pool.file.threads}")
     private int threads;
 
     @Bean(name = "fileThreadPool")

@@ -1,10 +1,10 @@
 package com.scd.filesdk.engine;
 
 import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSDownloadStream;
 import com.scd.filesdk.model.param.BreakParam;
 import com.scd.filesdk.model.vo.BreakResult;
 import com.scd.filesdk.util.FileUtil;
-import com.scd.filesdk.util.SftpUtilMulti;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,17 +51,28 @@ public class MongoEngine extends BaseEngine{
     }
 
     @Override
-    public InputStream download(String remotePath) throws Exception {
+    public GridFSDownloadStream download(String remotePath) throws Exception {
         ObjectId objectId = new ObjectId(remotePath);
         return gridFSBucket.openDownloadStream(objectId);
     }
+
+//    @Override
+//    public byte[] downloadByte(String remotePath) throws Exception {
+//        GridFSDownloadStream gridFSDownloadStream = download(remotePath);
+//        long length = gridFSDownloadStream.getGridFSFile().getLength();
+//        byte[] bytes = new byte[(int) length];
+//        gridFSDownloadStream.read(bytes);
+//        return bytes;
+//    }
 
     @Override
     public BreakResult upload(BreakParam breakParam) {
         BreakResult breakResult = new BreakResult();
         String originFileName = breakParam.getName();
         int curChunk = breakParam.getChunk();
+        long chunkSize = breakParam.getChunkSize();
         try {
+            LOGGER.info("【Mongo】 filename : {}, chunk : {}, chunksize : {}", originFileName, curChunk, chunkSize);
             // 上传文件
             InputStream inputStream = breakParam.getFile().getInputStream();
             // 合并文件时好标识

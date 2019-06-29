@@ -69,13 +69,15 @@ public class SftpEngine extends BaseEngine{
         BreakResult breakResult = new BreakResult();
         String originFileName = breakParam.getName();
         int curChunk = breakParam.getChunk();
+        long chunkSize = breakParam.getChunkSize();
         try {
+            LOGGER.info("【Sftp】 filename : {}, chunk : {}, chunksize : {}", originFileName, curChunk, chunkSize);
             // 连接远程客户端
             ChannelSftp channelSftp = SftpUtilMulti.connectSftp(sftp.getHost(), sftp.getPort(),
                     sftp.getUsername(), sftp.getPassword());
             InputStream inputStream = breakParam.getFile().getInputStream();
             String destPath = FileUtil.getDestPath(sftp.getPath());
-            String fileName = curChunk + "_" + breakParam.getChunkSize() + "_" + originFileName;
+            String fileName = curChunk + "_" + chunkSize + "_" + originFileName;
             // 上传文件
             String storePath = SftpUtilMulti.upload(channelSftp, inputStream, destPath, fileName);
             breakResult.setWriteSuccess(true);

@@ -1,5 +1,6 @@
 package com.scd.filesdk.util;
 
+import com.scd.filesdk.exception.MergeFileException;
 import com.scd.filesdk.model.vo.BreakResult;
 import com.scd.fileservice.common.CommonConstant;
 import org.slf4j.Logger;
@@ -146,7 +147,7 @@ public class FileUtil {
      * @return
      * @throws IOException
      */
-    private byte[] getBytes(String filePath) throws IOException {
+    public static byte[] getBytes(String filePath) throws IOException {
         FileInputStream fis = null;
         ByteArrayOutputStream bos = null;
         byte[] buffer = null;
@@ -255,23 +256,50 @@ public class FileUtil {
      * @param file
      */
     public static void mergeRemoteFile(byte[] bytes, long offset, File file) {
+        if(bytes == null || bytes.length == 0){
+            throw new MergeFileException("bytes is empty");
+        }
+        LOGGER.info("filename {}, length {}, offset {}", file.getName(), bytes.length, offset);
+        RandomAccessFile accessTmpFile = null;
         try {
-            RandomAccessFile accessTmpFile = new RandomAccessFile(file, "rw");
+            accessTmpFile = new RandomAccessFile(file, "rw");
             //定位到该分片的偏移量
             accessTmpFile.seek(offset);
             //写入该分片数据
             accessTmpFile.write(bytes);
-            // 关闭随机读取文件
-            accessTmpFile.close();
         }catch (Exception e){
-            LOGGER.info("merge remote file error, location {}", offset);
+            e.printStackTrace();
+            throw new MergeFileException("merge remote file error, location "+ offset);
+        } finally {
+            try {
+                accessTmpFile.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                LOGGER.error("close randomAccessFile error");
+            }
         }
     }
 
     public static File createFile(String filePath){
-        getFileDir(filePath);
-        mkdirs(filePath);
+        String dirPath = getFileDir(filePath);
+        mkdirs(dirPath);
         return new File(filePath);
+    }
+
+    public static void deleteFileAndDir(String filePath) throws FileNotFoundException{
+        File file = new File(filePath);
+        if(!file.exists()){
+            throw new FileNotFoundException(filePath + " file not exists");
+        }
+        if(file.isFile()){
+            LOGGER.info("delete file {}, result {}",file.getAbsolutePath(), file.delete());
+        }else{
+            for(File f : file.listFiles()){
+                deleteFileAndDir(f.getAbsolutePath());
+            }
+            // 删除文件目录
+            LOGGER.info("delete dir {}, result {}", file.getAbsolutePath(), file.delete());
+        }
     }
 
     public static void main(String[] args) throws IOException {

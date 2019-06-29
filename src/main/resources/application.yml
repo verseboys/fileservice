@@ -56,7 +56,7 @@ file:
 
 pool:
   file:
-     threads: 3
+     threads: 66
 
 temp:
   breakpath: temp/breakmerge

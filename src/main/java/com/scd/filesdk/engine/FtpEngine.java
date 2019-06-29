@@ -68,13 +68,15 @@ public class FtpEngine extends BaseEngine {
         BreakResult breakResult = new BreakResult();
         String originFileName = breakParam.getName();
         int chunk = breakParam.getChunk();
+        long chunkSize = breakParam.getChunkSize();
         try {
+            LOGGER.info("【Ftp】 filename : {}, chunk : {}, chunksize : {}", originFileName, chunk, chunkSize);
             // 连接远程客户端
             FTPClient ftpClient = FtpUtilMulti.connectFtp(ftp.getHost(), ftp.getPort(),
                     ftp.getUsername(), ftp.getPassword());
             InputStream inputStream = breakParam.getFile().getInputStream();
             String destPath = FileUtil.getDestPath(ftp.getPath());
-            String fileName =  chunk + "_" + breakParam.getChunkSize() + "_" + originFileName;
+            String fileName =  chunk + "_" + chunkSize + "_" + originFileName;
             String storePath = FtpUtilMulti.upload(ftpClient, inputStream, destPath, fileName);
             breakResult.setFilePath(storePath);
             breakResult.setWriteSuccess(true);
