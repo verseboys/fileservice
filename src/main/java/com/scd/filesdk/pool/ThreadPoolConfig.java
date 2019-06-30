@@ -37,8 +37,8 @@ public class ThreadPoolConfig {
 
     @Bean(name = "fileThreadPool")
     public ExecutorService createThreadPool(){
-        return new ThreadPoolExecutor(30, 500,
-                60L, timeUnit, new ArrayBlockingQueue(blockingQueue),
+        return new ThreadPoolExecutor(corePoolSize, maximumPoolSize,
+                keepAliveTime, timeUnit, new ArrayBlockingQueue(blockingQueue),
                 new ThreadPoolExecutor.DiscardOldestPolicy());
     }
 }
