@@ -2,12 +2,13 @@
 server:
   port: 8080
   servlet:
-    context-path: /
+    context-path: /file
 
 #log
 logging:
   level:
      ROOT: info
+  file: file.log
 
 spring:
     servlet:
@@ -31,7 +32,7 @@ spring:
         port: 27017
         database: mongotest
         username: chengdu
-        password: chengdu
+        password: test
 
 remote:
     file:
@@ -56,7 +57,10 @@ file:
 
 pool:
   file:
-     threads: 66
-
+     corePoolSize: 28
+     maximumPoolSize: 66
+     keepAliveTime: 60
+     timeUnit: SECONDS
+     blockingQueue: 2000
 temp:
-  breakpath: temp/breakmerge
+  breakpath: /temp/breakmerge
