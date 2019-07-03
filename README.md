@@ -100,3 +100,9 @@ GC 时间: 
 PS MarkSweep上的       0.288 秒 (3收集)
 PS Scavenge上的       0.653 秒 (34收集)
 ```
+
+# 连接池
+
+​       SFTP 连接池、FTP 连接池， 使用的是  apache commons-pool2实现，
+
+避免频繁、创建销毁连接对象，空闲检测
