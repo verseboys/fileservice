@@ -1,6 +1,6 @@
 package com.scd.filesdk.model.task;
 
-import com.scd.filesdk.tools.FileMapperTool;
+import com.scd.filesdk.tools.EngineMapperTool;
 import com.scd.filesdk.engine.BaseEngine;
 import com.scd.filesdk.model.vo.BreakMergeResult;
 import com.scd.filesdk.util.FileUtil;
@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.concurrent.Callable;
 
 /**
@@ -45,7 +44,7 @@ public class BreakTask implements Callable<BreakMergeResult> {
         breakMergeResult.setFileName(fileName);
         try {
             LOGGER.info("merge file {}, chunk {}, chunsize {}", fileName, chunk, chunkSize);
-            BaseEngine baseEngine = FileMapperTool.getFileEngine(uploadType);
+            BaseEngine baseEngine = EngineMapperTool.getFileEngine(uploadType);
             byte[] bytes = baseEngine.downloadByte(address);
             long offset = chunk * chunkSize;
             FileUtil.mergeRemoteFile(bytes, offset, tempFile);

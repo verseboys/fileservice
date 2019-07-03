@@ -1,8 +1,7 @@
 package com.scd.fileservice.service.impl;
 
-import com.mongodb.client.gridfs.GridFSDownloadStream;
 import com.scd.filesdk.common.ServiceInfo;
-import com.scd.filesdk.tools.FileMapperTool;
+import com.scd.filesdk.tools.EngineMapperTool;
 import com.scd.filesdk.engine.BaseEngine;
 import com.scd.filesdk.model.param.BreakParam;
 import com.scd.filesdk.model.task.BreakTask;
@@ -29,7 +28,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -55,7 +53,7 @@ public class FileServiceImpl implements FileService {
     public String upload(MultipartFile multipartFile, String type) throws Exception {
         InputStream inputStream = multipartFile.getInputStream();
         String fileName = multipartFile.getOriginalFilename();
-        BaseEngine baseEngine = FileMapperTool.getFileEngine(type);
+        BaseEngine baseEngine = EngineMapperTool.getFileEngine(type);
         String remotePath = baseEngine.upload(inputStream, fileName);
         Map<String, String> fileInfo = createFileInfo(multipartFile, type, remotePath);
         String fileId = UUID.randomUUID().toString();
@@ -83,7 +81,7 @@ public class FileServiceImpl implements FileService {
             if(StringUtils.isEmpty(remotePath)){
                 return "can not find remote path";
             }
-            BaseEngine baseEngine = FileMapperTool.getFileEngine(uploadtype.toString());
+            BaseEngine baseEngine = EngineMapperTool.getFileEngine(uploadtype.toString());
             // 下载文件
             InputStream inputStream = baseEngine.download(remotePath.toString());
             // 输出文件
@@ -93,7 +91,7 @@ public class FileServiceImpl implements FileService {
             Map<Object, Object> breaFilekMap = fileRedisData.findBreakFileInfo(fileId);
             Object status = breaFilekMap.get("file_status");
             if( ! CommonConstant.STR_TRUE.equals(status)){
-                return "file is uploading";
+                return "data exception";
             }
             Object chunkNum = breaFilekMap.get("chunk_num");
             Object chunkSizeObj = breaFilekMap.get("chunk_size");
@@ -133,7 +131,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public String breakUpload(BreakParam breakParam, String type) {
-        BaseEngine baseEngine = FileMapperTool.getFileEngine(type);
+        BaseEngine baseEngine = EngineMapperTool.getFileEngine(type);
         BreakResult breakResult = baseEngine.upload(breakParam);
         if(!breakResult.isWriteSuccess()){
             return "upload to " + type + " error";

@@ -67,7 +67,6 @@ public class FtpUtilMulti {
         if(ftpClient.isConnected()){
             try {
                 ftpClient.logout();
-                ftpClient.quit();
             }catch (Exception e){
                 LOGGER.error("quit ftp error");
             }

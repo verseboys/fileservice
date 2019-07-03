@@ -12,7 +12,7 @@ import java.util.Map;
  * @author chengdu
  */
 @Component
-public class FileMapperTool {
+public class EngineMapperTool {
 
     private static InitConfig initConfig;
 

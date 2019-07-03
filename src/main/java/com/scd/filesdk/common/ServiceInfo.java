@@ -38,7 +38,7 @@ public interface ServiceInfo {
     interface REDIS {
         String host = "127.0.0.1";
         int port = 6379;
-        String password = "test";
+        String password = "ShooterCheng.Pool";
         int database = 15;
     }
 }

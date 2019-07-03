@@ -43,13 +43,13 @@ file:
       local:
          path: /home/scd/upload
       sftp:
-         host: 192.168.1.104
+         host: 192.168.1.101
          port: 22
          username: test
          password: testT2018
          path: /sftpupload
       ftp:
-         host: 192.168.1.104
+         host: 192.168.1.101
          port: 21
          username: test
          password: testT2018

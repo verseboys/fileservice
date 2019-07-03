@@ -27,7 +27,6 @@ public class JedisFactory extends BasePooledObjectFactory<Jedis> {
         LOGGER.info("create jedis ~");
         Jedis jedis = new Jedis(ServiceInfo.REDIS.host, ServiceInfo.REDIS.port);
         jedis.auth(ServiceInfo.REDIS.password);
-        jedis.connect();
 //        LOGGER.info("jedis connect status {}", jedis.isConnected());
         return jedis;
     }
@@ -51,7 +50,10 @@ public class JedisFactory extends BasePooledObjectFactory<Jedis> {
     @Override
     public void activateObject(PooledObject<Jedis> p) throws Exception {
         LOGGER.info("activate Object");
-        p.getObject().connect();
+        Jedis jedis = p.getObject();
+        if(jedis != null && !jedis.isConnected()){
+            jedis.connect();
+        }
     }
 
     /**

@@ -4,7 +4,7 @@ import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSDownloadStream;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.scd.filesdk.engine.BaseEngine;
-import com.scd.filesdk.tools.FileMapperTool;
+import com.scd.filesdk.tools.EngineMapperTool;
 import com.scd.filesdk.model.param.BreakParam;
 import com.scd.fileservice.data.FileRedisData;
 import com.scd.fileservice.model.vo.BreakStatus;
@@ -57,7 +57,7 @@ public class FileController {
 
     @RequestMapping(value = "/test/engine/{type}",method = RequestMethod.POST)
     public String testEngine(@PathVariable(value = "type") String type, @RequestParam("file") MultipartFile multipartFile) throws Exception{
-        BaseEngine baseEngine = FileMapperTool.getFileEngine(type);
+        BaseEngine baseEngine = EngineMapperTool.getFileEngine(type);
         String originName = multipartFile.getOriginalFilename();
         // inputstream
         InputStream inputStream = multipartFile.getInputStream();

@@ -80,7 +80,6 @@ public class SftpUtil {
             }
             if (channelSftp.isConnected()) {
                 channelSftp.quit();
-                channelSftp.disconnect();
             }
             LOGGER.info("client disconnected sftp");
         }catch (JSchException e){

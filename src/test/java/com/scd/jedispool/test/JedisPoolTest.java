@@ -19,7 +19,7 @@ public class JedisPoolTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JedisPoolTest.class);
 
-    private GenericObjectPoolConfig<Jedis> jedisPoolConfig = new GenericObjectPoolConfig<>();
+    private GenericObjectPoolConfig jedisPoolConfig = new GenericObjectPoolConfig<>();
 
     private JedisFactory jedisFactory = new JedisFactory();
 
@@ -33,10 +33,12 @@ public class JedisPoolTest {
         jedisPoolConfig.setMaxWaitMillis(2000);
         // 每次 Borrow 都会去 validateObject
 //        jedisPoolConfig.setTestOnBorrow(true);
+        // 空闲检测
         jedisPoolConfig.setTestWhileIdle(true);
         // 检测时间可以调大点
-        jedisPoolConfig.setTimeBetweenEvictionRunsMillis(1000);
+        jedisPoolConfig.setTimeBetweenEvictionRunsMillis(5000);
         jedisPool = new JedisPool(jedisFactory, jedisPoolConfig);
+        System.out.println(jedisPool);
     }
 
     @Test

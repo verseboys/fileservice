@@ -48,7 +48,6 @@ public class SftpUtilMulti {
                 session.disconnect();
             }
             if (channelSftp.isConnected()) {
-                channelSftp.quit();
                 channelSftp.disconnect();
             }
         }catch (JSchException e){
