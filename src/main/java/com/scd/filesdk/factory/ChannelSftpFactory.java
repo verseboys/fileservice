@@ -62,20 +62,28 @@ public class ChannelSftpFactory extends BasePooledObjectFactory<ChannelSftp> {
 
     public boolean validateObject(PooledObject<ChannelSftp> p) {
         ChannelSftp channelSftp = p.getObject();
+        LOGGER.info("activate Object {}", channelSftp.isConnected());
         if(channelSftp != null && channelSftp.isConnected()){
             return true;
         }
-        return true;
+        return false;
     }
 
     public void activateObject(PooledObject<ChannelSftp> p) throws Exception {
         ChannelSftp channelSftp = p.getObject();
+        LOGGER.info("activate Object {}", channelSftp.isConnected());
         if(!channelSftp.isConnected()){
             channelSftp.connect();
         }
     }
 
+
     public void passivateObject(PooledObject<ChannelSftp> p) throws Exception {
-        LOGGER.info("passivate Object");
+        ChannelSftp channelSftp = p.getObject();
+        LOGGER.info("passivate Object {}", channelSftp.isConnected());
+        // sftp 为何要断开才行
+        if(channelSftp.isConnected()){
+            channelSftp.getSession().disconnect();
+        }
     }
 }

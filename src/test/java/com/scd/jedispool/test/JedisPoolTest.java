@@ -38,7 +38,6 @@ public class JedisPoolTest {
         // 检测时间可以调大点
         jedisPoolConfig.setTimeBetweenEvictionRunsMillis(5000);
         jedisPool = new JedisPool(jedisFactory, jedisPoolConfig);
-        System.out.println(jedisPool);
     }
 
     @Test

@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
@@ -51,5 +53,16 @@ public class SingletonPoolTool {
             LOGGER.info("pooltype {} maxtotal {} numactive {} numidle {} numwaiters {}",
                     poolType, pool.getMaxTotal(), pool.getNumActive(), pool.getNumIdle(), pool.getNumWaiters());
         }
+    }
+
+    public static Map<String, Object> getPoolInfo(PoolType poolType){
+        GenericObjectPool pool = createPool(poolType);
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("pooltype", poolType);
+        map.put("maxtotal", pool.getMaxTotal());
+        map.put("numactive", pool.getNumActive());
+        map.put("numidle", pool.getNumIdle());
+        map.put("numwaiters", pool.getNumWaiters());
+        return map;
     }
 }

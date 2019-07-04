@@ -113,10 +113,6 @@ public class FileRedisData {
 
     public boolean existsBreakRecord(String fileId){
         String breakRecordKey = String.format(CommonConstant.FILE_BREAK_RECORD, fileId);
-        Boolean keyexists = stringRedisTemplate.hasKey(breakRecordKey);
-        if(keyexists == null || !keyexists.booleanValue()){
-            return false;
-        }
         if(StringUtils.isEmpty(stringRedisTemplate.opsForValue().get(breakRecordKey))){
             return false;
         }

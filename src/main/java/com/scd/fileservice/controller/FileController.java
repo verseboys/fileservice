@@ -3,9 +3,11 @@ package com.scd.fileservice.controller;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSDownloadStream;
 import com.mongodb.client.gridfs.model.GridFSFile;
+import com.scd.filesdk.common.PoolType;
 import com.scd.filesdk.engine.BaseEngine;
 import com.scd.filesdk.tools.EngineMapperTool;
 import com.scd.filesdk.model.param.BreakParam;
+import com.scd.filesdk.tools.SingletonPoolTool;
 import com.scd.fileservice.data.FileRedisData;
 import com.scd.fileservice.model.vo.BreakStatus;
 import com.scd.fileservice.model.vo.Result;
@@ -154,4 +156,8 @@ public class FileController {
         }
     }
 
+    @RequestMapping(value = "/pool/info", method = RequestMethod.GET)
+    public Map<String,Object> getPoolInfo(PoolType poolType){
+        return  SingletonPoolTool.getPoolInfo(poolType);
+    }
 }

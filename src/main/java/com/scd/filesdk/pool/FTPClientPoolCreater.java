@@ -30,7 +30,7 @@ public class FTPClientPoolCreater {
 
     private FTPClientPool<FTPClient> ftpClientPool;
 
-    private Lock lock = new ReentrantLock();
+    private final Lock lock = new ReentrantLock();
 
     public FTPClientPool<FTPClient> createFTPClientPool(){
         lock.lock();

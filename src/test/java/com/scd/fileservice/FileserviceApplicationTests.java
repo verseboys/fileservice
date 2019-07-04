@@ -143,7 +143,7 @@ public class FileserviceApplicationTests {
 			});
 		}
 		countDownLatch.await();
-		LOGGER.info("chile thread over");
+		LOGGER.info("child thread over");
 	}
 
 	@Test

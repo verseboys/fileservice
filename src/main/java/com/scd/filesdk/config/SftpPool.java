@@ -17,5 +17,5 @@ public class SftpPool {
     private int maxIdle = 100;
     private long maxWait = 3000;
     private boolean testWhileIdle = true;
-    private long timeBetweenEvictionRunsMillis = 1000 * 60;
+    private long timeBetweenEvictionRunsMillis = 1000 * 60 * 20;
 }

@@ -1,11 +1,9 @@
 package com.scd.filesdk.pool;
 
-import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.AbandonedConfig;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import redis.clients.jedis.Jedis;
 
 /**
  * @author chengdu
