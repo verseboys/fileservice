@@ -39,6 +39,6 @@ public class ThreadPoolConfig {
     public ExecutorService createThreadPool(){
         return new ThreadPoolExecutor(corePoolSize, maximumPoolSize,
                 keepAliveTime, timeUnit, new ArrayBlockingQueue(blockingQueue),
-                new ThreadPoolExecutor.DiscardOldestPolicy());
+                new ThreadPoolExecutor.AbortPolicy());
     }
 }

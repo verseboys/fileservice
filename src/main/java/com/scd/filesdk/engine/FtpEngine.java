@@ -37,12 +37,15 @@ public class FtpEngine extends BaseEngine {
 
     @Override
     public String upload(InputStream inputStream, String filename) throws Exception {
-        // 连接远程客户端
+        // 连接FTP 服务器
         FTPClient ftpClient = FtpUtilMulti.connectFtp(ftp.getHost(), ftp.getPort(),
                 ftp.getUsername(), ftp.getPassword());
         String destPath = FileUtil.getDestPath(ftp.getPath());
         // 上传文件
-        return FtpUtilMulti.upload(ftpClient, inputStream, destPath, filename);
+        String remotePath = FtpUtilMulti.upload(ftpClient, inputStream, destPath, filename);
+        // 关闭连接
+        FtpUtilMulti.ftpQuit(ftpClient);
+        return remotePath;
     }
 
     @Override
@@ -57,10 +60,13 @@ public class FtpEngine extends BaseEngine {
 
     @Override
     public InputStream download(String remotePath) throws IOException {
-        // 连接远程客户端
+        // 连接FTP 服务器
         FTPClient ftpClient = FtpUtilMulti.connectFtp(ftp.getHost(), ftp.getPort(),
                 ftp.getUsername(), ftp.getPassword());
-        return FtpUtilMulti.download(ftpClient, remotePath);
+        InputStream inputStream = FtpUtilMulti.download(ftpClient, remotePath);
+        // 关闭连接
+        FtpUtilMulti.ftpQuit(ftpClient);
+        return inputStream;
     }
 
     @Override
@@ -69,10 +75,11 @@ public class FtpEngine extends BaseEngine {
         String originFileName = breakParam.getName();
         int chunk = breakParam.getChunk();
         long chunkSize = breakParam.getChunkSize();
+        FTPClient ftpClient = null;
         try {
             LOGGER.info("【Ftp】 filename : {}, chunk : {}, chunksize : {}", originFileName, chunk, chunkSize);
-            // 连接远程客户端
-            FTPClient ftpClient = FtpUtilMulti.connectFtp(ftp.getHost(), ftp.getPort(),
+            // 连接FTP 服务器
+            ftpClient = FtpUtilMulti.connectFtp(ftp.getHost(), ftp.getPort(),
                     ftp.getUsername(), ftp.getPassword());
             InputStream inputStream = breakParam.getFile().getInputStream();
             String destPath = FileUtil.getDestPath(ftp.getPath());
@@ -83,6 +90,10 @@ public class FtpEngine extends BaseEngine {
         }catch (Exception e){
             LOGGER.error("upload chunk file to Ftp error filename : {} chunk : {}", originFileName, breakParam.getChunk());
             breakResult.setWriteSuccess(false);
+        }finally {
+            if(ftpClient != null){
+                FtpUtilMulti.ftpQuit(ftpClient);
+            }
         }
         return breakResult;
     }

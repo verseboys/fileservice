@@ -49,7 +49,6 @@ public class SftpUtilMulti {
             }
             if (channelSftp.isConnected()) {
                 channelSftp.quit();
-                channelSftp.disconnect();
             }
         }catch (JSchException e){
             LOGGER.error("disconnecte sftp error", e);

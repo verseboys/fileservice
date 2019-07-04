@@ -38,12 +38,15 @@ public class SftpEngine extends BaseEngine{
 
     @Override
     public String upload(InputStream inputStream, String filename) throws JSchException, SftpException {
-        // 连接远程客户端
+        // 连接Sftp
         ChannelSftp channelSftp = SftpUtilMulti.connectSftp(sftp.getHost(), sftp.getPort(),
                 sftp.getUsername(), sftp.getPassword());
         String destPath = FileUtil.getDestPath(sftp.getPath());
         // 上传文件
-        return SftpUtilMulti.upload(channelSftp, inputStream, destPath, filename);
+        String remotePath = SftpUtilMulti.upload(channelSftp, inputStream, destPath, filename);
+        // 关闭连接
+        SftpUtilMulti.sftpQuit(channelSftp);
+        return remotePath;
     }
 
     @Override
@@ -58,10 +61,13 @@ public class SftpEngine extends BaseEngine{
 
     @Override
     public InputStream download(String remotePath) throws JSchException,SftpException {
-        // 连接远程客户端
+        // 连接Sftp
         ChannelSftp channelSftp = SftpUtilMulti.connectSftp(sftp.getHost(), sftp.getPort(),
                 sftp.getUsername(), sftp.getPassword());
-        return SftpUtilMulti.download(channelSftp, remotePath);
+        InputStream inputStream = SftpUtilMulti.download(channelSftp, remotePath);
+        // 关闭连接
+        SftpUtilMulti.sftpQuit(channelSftp);
+        return inputStream;
     }
 
     @Override
@@ -70,10 +76,11 @@ public class SftpEngine extends BaseEngine{
         String originFileName = breakParam.getName();
         int curChunk = breakParam.getChunk();
         long chunkSize = breakParam.getChunkSize();
+        ChannelSftp channelSftp = null;
         try {
             LOGGER.info("【Sftp】 filename : {}, chunk : {}, chunksize : {}", originFileName, curChunk, chunkSize);
-            // 连接远程客户端
-            ChannelSftp channelSftp = SftpUtilMulti.connectSftp(sftp.getHost(), sftp.getPort(),
+            // 连接 Sftp
+            channelSftp = SftpUtilMulti.connectSftp(sftp.getHost(), sftp.getPort(),
                     sftp.getUsername(), sftp.getPassword());
             InputStream inputStream = breakParam.getFile().getInputStream();
             String destPath = FileUtil.getDestPath(sftp.getPath());
@@ -85,6 +92,10 @@ public class SftpEngine extends BaseEngine{
         }catch (Exception e){
             LOGGER.error("upload chunk file to Sftp error filename : {} chunk : {}", originFileName, curChunk);
             breakResult.setWriteSuccess(false);
+        }finally {
+            if(channelSftp != null){
+                SftpUtilMulti.sftpQuit(channelSftp);
+            }
         }
         return breakResult;
     }
