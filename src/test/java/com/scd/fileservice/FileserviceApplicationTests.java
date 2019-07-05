@@ -137,8 +137,11 @@ public class FileserviceApplicationTests {
 			cachedThreadPool.execute(new Runnable() {
 				@Override
 				public void run() {
-					channelSftpPoolCreater.createChannelSftpPool();
-					countDownLatch.countDown();
+					try {
+						channelSftpPoolCreater.createChannelSftpPool();
+					}finally {
+						countDownLatch.countDown();
+					}
 				}
 			});
 		}
