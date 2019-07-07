@@ -18,7 +18,7 @@ spring:
     redis:
       host: 127.0.0.1
       port: 6379
-      password: ShooterCheng.Pool
+      password: test
       database: 15
       timeout: 3000
       jedis:
@@ -32,7 +32,7 @@ spring:
         port: 27017
         database: mongotest
         username: chengdu
-        password: Cheng.Du
+        password: test
 
 remote:
     file:
@@ -62,5 +62,18 @@ pool:
      keepAliveTime: 60
      timeUnit: SECONDS
      blockingQueue: 2000
+  sftp:
+     maxTotal: 100
+     maxIdle: 28
+     maxWait: 3000
+     testWhileIdle: true
+     timeBetweenEvictionRunsMillis: 600000
+  ftp:
+     maxTotal: 100
+     maxIdle: 28
+     maxWait: 3000
+     testWhileIdle: true
+     timeBetweenEvictionRunsMillis: 60000
+
 temp:
   breakpath: /temp/breakmerge

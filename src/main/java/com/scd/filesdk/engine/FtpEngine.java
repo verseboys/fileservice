@@ -38,15 +38,8 @@ public class FtpEngine extends BaseEngine {
 
     @Override
     public String upload(InputStream inputStream, String filename) throws Exception {
-        // 连接远程FTP
-//        FTPClient ftpClient = FtpUtilMulti.connectFtp(ftp.getHost(), ftp.getPort(),
-//                ftp.getUsername(), ftp.getPassword());
-        FTPClient ftpClient = borrowFTPClient();
-        SingletonPoolTool.showPoolInfo(PoolType.FTP);
         String destPath = FileUtil.getDestPath(ftp.getPath());
-        // 上传文件
-//        return FtpUtilMulti.upload(ftpClient, inputStream, destPath, filename);
-        return uploadFile(ftpClient, inputStream, destPath, filename);
+        return uploadFile(inputStream, destPath, filename);
     }
 
     @Override
@@ -61,10 +54,7 @@ public class FtpEngine extends BaseEngine {
 
     @Override
     public InputStream download(String remotePath) throws IOException {
-        // 连接远程客户端
-        FTPClient ftpClient = FtpUtilMulti.connectFtp(ftp.getHost(), ftp.getPort(),
-                ftp.getUsername(), ftp.getPassword());
-        return FtpUtilMulti.download(ftpClient, remotePath);
+        return downloadFile(remotePath);
     }
 
     @Override
@@ -75,15 +65,10 @@ public class FtpEngine extends BaseEngine {
         long chunkSize = breakParam.getChunkSize();
         try {
             LOGGER.info("【Ftp】 filename : {}, chunk : {}, chunksize : {}", originFileName, chunk, chunkSize);
-            // 连接远程FTP
-//            FTPClient ftpClient = FtpUtilMulti.connectFtp(ftp.getHost(), ftp.getPort(),
-//                    ftp.getUsername(), ftp.getPassword());
-            FTPClient ftpClient = borrowFTPClient();
             InputStream inputStream = breakParam.getFile().getInputStream();
             String destPath = FileUtil.getDestPath(ftp.getPath());
             String fileName =  chunk + "_" + chunkSize + "_" + originFileName;
-//            String storePath = FtpUtilMulti.upload(ftpClient, inputStream, destPath, fileName);
-            String storePath = uploadFile(ftpClient, inputStream, destPath, fileName);
+            String storePath = uploadFile(inputStream, destPath, fileName);
             breakResult.setFilePath(storePath);
             breakResult.setWriteSuccess(true);
         }catch (Exception e){
@@ -93,35 +78,39 @@ public class FtpEngine extends BaseEngine {
         return breakResult;
     }
 
-    private FTPClient borrowFTPClient(){
-        GenericObjectPool sftpPool = SingletonPoolTool.createPool(PoolType.FTP);
-        FTPClient ftpClient = null;
-        try {
-            ftpClient = (FTPClient) sftpPool.borrowObject();
-        }catch (Exception e){
-            LOGGER.error("borrow ftpClient from pool error");
-        }
-        return ftpClient;
-    }
-
-    private void returnFTPClient(FTPClient ftpClient){
-        if(ftpClient != null){
-            GenericObjectPool ftpPool = SingletonPoolTool.createPool(PoolType.FTP);
-            ftpPool.returnObject(ftpClient);
-        }
-    }
-
-    public String uploadFile(FTPClient ftpClient, InputStream inputStream,
+    private String uploadFile(InputStream inputStream,
                              String destPath, String filename){
         String remotePath;
+        FTPClient ftpClient = null;
+        GenericObjectPool ftpPool= null;
         try {
+            ftpPool = SingletonPoolTool.createPool(PoolType.FTP);
+            ftpClient = (FTPClient) ftpPool.borrowObject();
             remotePath = FtpUtilMulti.upload(ftpClient, inputStream, destPath, filename);
         }catch (Exception e){
             throw new RuntimeException("upload file to ftp error, filename "+filename);
         }finally {
-            returnFTPClient(ftpClient);
+            ftpPool.returnObject(ftpClient);
             SingletonPoolTool.showPoolInfo(PoolType.FTP);
         }
         return remotePath;
     }
+
+    private InputStream downloadFile(String remotePath){
+        FTPClient ftpClient = null;
+        GenericObjectPool ftpPool= null;
+        InputStream inputStream;
+        try {
+            ftpPool = SingletonPoolTool.createPool(PoolType.FTP);
+            ftpClient = (FTPClient) ftpPool.borrowObject();
+            inputStream = FtpUtilMulti.download(ftpClient, remotePath);
+        }catch (Exception e){
+            throw new RuntimeException("upload file from ftp error, filename "+remotePath);
+        }finally {
+            ftpPool.returnObject(ftpClient);
+            SingletonPoolTool.showPoolInfo(PoolType.FTP);
+        }
+        return inputStream;
+    }
+
 }

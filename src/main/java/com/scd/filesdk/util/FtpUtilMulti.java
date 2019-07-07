@@ -57,10 +57,14 @@ public class FtpUtilMulti {
     }
 
     public static String upload(FTPClient ftpClient, InputStream inputStream,
-                                String remotePath, String filename) throws IOException {
-        makeDirAndChange(ftpClient, remotePath);
+                                String destPath, String filename) throws IOException {
+        // 记录home Path
+        String homePath = ftpClient.printWorkingDirectory();
+        makeDirAndChange(ftpClient, destPath);
         ftpClient.storeFile(filename, inputStream);
-        return ftpClient.printWorkingDirectory() + "/" + filename;
+        // 回到home Path
+        ftpClient.changeWorkingDirectory(homePath);
+        return homePath + destPath + "/" + filename;
     }
 
     public static void ftpQuit(FTPClient ftpClient){

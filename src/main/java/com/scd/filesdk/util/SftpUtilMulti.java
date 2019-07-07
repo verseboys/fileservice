@@ -87,6 +87,8 @@ public class SftpUtilMulti {
         cdAndMkdirs(channelSftp, destPath);
         channelSftp.put(inputStream, filename);
         String loginPath = channelSftp.getHome();
+        // 回到连接目录
+        channelSftp.cd(loginPath);
         return loginPath + destPath + "/" + filename;
     }
 

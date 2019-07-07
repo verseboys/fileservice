@@ -15,14 +15,14 @@ public interface ServiceInfo {
     }
 
     interface SFTP {
-        String host = "192.168.1.104";
+        String host = "192.168.1.101";
         int port = 22;
         String username = "test";
         String password = "testT2018";
     }
 
     interface FTP {
-        String host = "192.168.1.104";
+        String host = "192.168.1.101";
         int port = 21;
         String username = "test";
         String password = "testT2018";
@@ -38,7 +38,7 @@ public interface ServiceInfo {
     interface REDIS {
         String host = "127.0.0.1";
         int port = 6379;
-        String password = "ShooterCheng.Pool";
+        String password = "test";
         int database = 15;
     }
 }

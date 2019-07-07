@@ -62,7 +62,7 @@ public class ChannelSftpFactory extends BasePooledObjectFactory<ChannelSftp> {
 
     public boolean validateObject(PooledObject<ChannelSftp> p) {
         ChannelSftp channelSftp = p.getObject();
-        LOGGER.info("activate Object {}", channelSftp.isConnected());
+        LOGGER.info("validate Object {}", channelSftp.isConnected());
         if(channelSftp != null && channelSftp.isConnected()){
             return true;
         }
@@ -82,8 +82,9 @@ public class ChannelSftpFactory extends BasePooledObjectFactory<ChannelSftp> {
         ChannelSftp channelSftp = p.getObject();
         LOGGER.info("passivate Object {}", channelSftp.isConnected());
         // sftp 为何要断开才行
-        if(channelSftp.isConnected()){
-            channelSftp.getSession().disconnect();
-        }
+        // 哈哈，同一个连接创建多级文件夹问题
+//        if(channelSftp.isConnected()){
+//            channelSftp.getSession().disconnect();
+//        }
     }
 }

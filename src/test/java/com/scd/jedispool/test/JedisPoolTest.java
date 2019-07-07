@@ -30,13 +30,13 @@ public class JedisPoolTest {
         jedisPoolConfig.setMinIdle(GenericObjectPoolConfig.DEFAULT_MIN_IDLE);
         jedisPoolConfig.setMaxIdle(GenericObjectPoolConfig.DEFAULT_MAX_IDLE);
         jedisPoolConfig.setMaxTotal(GenericObjectPoolConfig.DEFAULT_MAX_TOTAL);
-        jedisPoolConfig.setMaxWaitMillis(2000);
+        jedisPoolConfig.setMaxWaitMillis(1000 * 30);
         // 每次 Borrow 都会去 validateObject
 //        jedisPoolConfig.setTestOnBorrow(true);
         // 空闲检测
         jedisPoolConfig.setTestWhileIdle(true);
         // 检测时间可以调大点
-        jedisPoolConfig.setTimeBetweenEvictionRunsMillis(5000);
+        jedisPoolConfig.setTimeBetweenEvictionRunsMillis(1000 * 5);
         jedisPool = new JedisPool(jedisFactory, jedisPoolConfig);
     }
 

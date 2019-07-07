@@ -22,7 +22,7 @@ public class FtpUtil {
     private static FTPClient ftpClient = null;
 
     public static void connectFtp(String host, int port, String username, String password) throws IOException {
-        if(ftpClient.isConnected()){
+        if(ftpClient != null && ftpClient.isConnected()){
             return ;
         }
         ftpClient = new FTPClient();
@@ -97,7 +97,12 @@ public class FtpUtil {
         String filepath = "C:\\Users\\chengdu\\Desktop\\filetype\\jcommon-1.0.16.jar";
         InputStream inputStream = new FileInputStream(filepath);
         String filename = FileUtil.getFileName(filepath);
-        String remotePath = "/ftp";
+        String remotePath = "/ftp/2/1/1";
+        String homePath = ftpClient.printWorkingDirectory();
         System.out.println(upload(inputStream, remotePath, filename));
+        ftpClient.printWorkingDirectory();
+        ftpClient.changeWorkingDirectory(homePath);
+        ftpClient.printWorkingDirectory();
+        ftpClient.reinitialize();
     }
 }

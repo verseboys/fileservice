@@ -28,7 +28,6 @@ public class FTPClientFactory extends BasePooledObjectFactory<FTPClient> {
 
     @Override
     public FTPClient create() throws Exception {
-        LOGGER.info("【FTPClientFactory】 create FTPClient");
         return createFtpClient();
     }
 
@@ -42,16 +41,7 @@ public class FTPClientFactory extends BasePooledObjectFactory<FTPClient> {
     public void activateObject(PooledObject<FTPClient> p) throws Exception {
         FTPClient ftpClient = p.getObject();
         if(ftpClient != null && !ftpClient.isConnected()){
-            // 连接ftp服务器
-            ftpClient.connect(ftp.getHost(), ftp.getPort());
-            // 登录ftp服务器
-            ftpClient.login(ftp.getUsername(), ftp.getPassword());
-            int replycode = ftpClient.getReplyCode();
-            if(! FTPReply.isPositiveCompletion(replycode)){
-                throw new RuntimeException("can not connect ftp");
-            }else{
-                LOGGER.info("connect ftp success");
-            }
+            connectFtp(ftpClient);
         }
     }
 
@@ -83,7 +73,22 @@ public class FTPClientFactory extends BasePooledObjectFactory<FTPClient> {
         ftpClient.enterLocalPassiveMode();
         ftpClient.setControlEncoding(StandardCharsets.UTF_8.name());
         ftpClient.setDataTimeout(2000);
-        ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
+        connectFtp(ftpClient);
         return ftpClient;
+    }
+
+    private void connectFtp(FTPClient ftpClient) throws IOException {
+        // 连接ftp服务器
+        ftpClient.connect(ftp.getHost(), ftp.getPort());
+        // 登录ftp服务器
+        ftpClient.login(ftp.getUsername(), ftp.getPassword());
+        int replycode = ftpClient.getReplyCode();
+        if(! FTPReply.isPositiveCompletion(replycode)){
+            throw new RuntimeException("can not connect ftp");
+        }else{
+            LOGGER.info("connect ftp success");
+        }
+        // 登录之后设置
+        ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
     }
 }
