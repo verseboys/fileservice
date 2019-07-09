@@ -103,6 +103,22 @@ PS Scavenge上的       0.653 秒 (34收集)
 
 # 连接池
 
-​       SFTP 连接池、FTP 连接池， 使用的是  apache commons-pool2实现，
+​       SFTP 连接池、FTP 连接池， apache commons-pool2实现，
 
 避免频繁、创建销毁连接对象，空闲检测
+
+
+
+#  问题
+
+​	ftp 断点续传 使用连接池之后 存在一些问题
+
+​	欢迎 大家 pull request 解决问题
+
+
+
+# 规划
+
+​      1.断点续传客户端，每一次只下载一个分片，有客户端记录合并了那些分片文件
+
+​      2.增加 fastdfs  hdfs
