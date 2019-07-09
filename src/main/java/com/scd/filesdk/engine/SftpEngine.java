@@ -64,10 +64,7 @@ public class SftpEngine extends BaseEngine{
         // 连接Sftp
         ChannelSftp channelSftp = SftpUtilMulti.connectSftp(sftp.getHost(), sftp.getPort(),
                 sftp.getUsername(), sftp.getPassword());
-        InputStream inputStream = SftpUtilMulti.download(channelSftp, remotePath);
-        // 关闭连接
-        SftpUtilMulti.sftpQuit(channelSftp);
-        return inputStream;
+        return SftpUtilMulti.download(channelSftp, remotePath);
     }
 
     @Override

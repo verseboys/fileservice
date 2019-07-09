@@ -63,10 +63,7 @@ public class FtpEngine extends BaseEngine {
         // 连接FTP 服务器
         FTPClient ftpClient = FtpUtilMulti.connectFtp(ftp.getHost(), ftp.getPort(),
                 ftp.getUsername(), ftp.getPassword());
-        InputStream inputStream = FtpUtilMulti.download(ftpClient, remotePath);
-        // 关闭连接
-        FtpUtilMulti.ftpQuit(ftpClient);
-        return inputStream;
+        return FtpUtilMulti.download(ftpClient, remotePath);
     }
 
     @Override
