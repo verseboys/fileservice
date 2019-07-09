@@ -88,43 +88,44 @@ public class FileServiceImpl implements FileService {
             FileDownLoadUtil.outputFile(response, inputStream, fileName.toString());
         }else{
             // 查询断点信息
-            Map<Object, Object> breaFilekMap = fileRedisData.findBreakFileInfo(fileId);
-            Object status = breaFilekMap.get("file_status");
-            if( ! CommonConstant.STR_TRUE.equals(status)){
-                return "data exception";
-            }
-            Object chunkNum = breaFilekMap.get("chunk_num");
-            Object chunkSizeObj = breaFilekMap.get("chunk_size");
-            int chunks = Integer.valueOf(chunkNum.toString());
-            List<String> fileAddress = fileRedisData.findBreakAddress(fileId, chunks);
-            long chunkSize = Long.valueOf(chunkSizeObj.toString());
-            // 创建临时文件目录
-            String tempPath = downTemp + File.separator + System.currentTimeMillis() + File.separator + fileName;
-            File tempFile = FileUtil.createFile(tempPath);
-            if(tempFile.exists() && tempFile.isFile()){
-                tempFile.delete();
-            }
-            List<Future<BreakMergeResult>> futureList = new ArrayList<>(fileAddress.size());
-            for(String address : fileAddress){
-                int index = address.indexOf("_");
-                String chunkStr = address.substring(0,index);
-                String fileaddress = address.substring(index + 1);
-                BreakTask breakTask = new BreakTask(Integer.valueOf(chunkStr),chunkSize,
-                        uploadtype.toString(), fileaddress, tempFile);
-                Future<BreakMergeResult> future = fileThreadPool.submit(breakTask);
-                futureList.add(future);
-            }
-            for(Future<BreakMergeResult> future : futureList){
-                try {
-                    BreakMergeResult breakMergeResult = future.get();
-                    LOGGER.info("merge file task result {}", breakMergeResult);
-                }catch (Exception e){
-                    LOGGER.error("get merge file task error");
-                }
-            }
-            InputStream inputStream = new FileInputStream(tempFile);
-            // 输出文件
-            FileDownLoadUtil.outputFile(response, inputStream, fileName.toString());
+//            Map<Object, Object> breaFilekMap = fileRedisData.findBreakFileInfo(fileId);
+//            Object status = breaFilekMap.get("file_status");
+//            if( ! CommonConstant.STR_TRUE.equals(status)){
+//                return "data exception";
+//            }
+//            Object chunkNum = breaFilekMap.get("chunk_num");
+//            Object chunkSizeObj = breaFilekMap.get("chunk_size");
+//            int chunks = Integer.valueOf(chunkNum.toString());
+//            List<String> fileAddress = fileRedisData.findBreakAddress(fileId, chunks);
+//            long chunkSize = Long.valueOf(chunkSizeObj.toString());
+//            // 创建临时文件目录
+//            String tempPath = downTemp + File.separator + System.currentTimeMillis() + File.separator + fileName;
+//            File tempFile = FileUtil.createFile(tempPath);
+//            if(tempFile.exists() && tempFile.isFile()){
+//                tempFile.delete();
+//            }
+//            List<Future<BreakMergeResult>> futureList = new ArrayList<>(fileAddress.size());
+//            for(String address : fileAddress){
+//                int index = address.indexOf("_");
+//                String chunkStr = address.substring(0,index);
+//                String fileaddress = address.substring(index + 1);
+//                BreakTask breakTask = new BreakTask(Integer.valueOf(chunkStr),chunkSize,
+//                        uploadtype.toString(), fileaddress, tempFile);
+//                Future<BreakMergeResult> future = fileThreadPool.submit(breakTask);
+//                futureList.add(future);
+//            }
+//            for(Future<BreakMergeResult> future : futureList){
+//                try {
+//                    BreakMergeResult breakMergeResult = future.get();
+//                    LOGGER.info("merge file task result {}", breakMergeResult);
+//                }catch (Exception e){
+//                    LOGGER.error("get merge file task error");
+//                }
+//            }
+//            InputStream inputStream = new FileInputStream(tempFile);
+//            // 输出文件
+//            FileDownLoadUtil.outputFile(response, inputStream, fileName.toString());
+              return "use client to download break file, wating .....";
         }
         return "";
     }

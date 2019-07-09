@@ -44,6 +44,7 @@ public class ChannelSftpPoolCreater {
                 config.setMaxTotal(sftpPool.getMaxTotal());
                 config.setMaxIdle(sftpPool.getMaxIdle());
                 config.setTestWhileIdle(sftpPool.isTestWhileIdle());
+                config.setTestOnBorrow(sftpPool.isTestOnOnBorrow());
                 config.setMaxWaitMillis(sftpPool.getMaxWait());
                 config.setTimeBetweenEvictionRunsMillis(sftpPool.getTimeBetweenEvictionRunsMillis());
                 LOGGER.info("create new pool {}", "channelSftpPool");

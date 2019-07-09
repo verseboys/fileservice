@@ -40,6 +40,7 @@ public class FTPClientPoolCreater {
                 config.setMaxTotal(ftpPool.getMaxTotal());
                 config.setMaxIdle(ftpPool.getMaxIdle());
                 config.setTestWhileIdle(ftpPool.isTestWhileIdle());
+                config.setTestOnBorrow(ftpPool.isTestOnOnBorrow());
                 config.setMaxWaitMillis(ftpPool.getMaxWait());
                 config.setTimeBetweenEvictionRunsMillis(ftpPool.getTimeBetweenEvictionRunsMillis());
                 LOGGER.info("create new pool {}", "ftpClientPool");

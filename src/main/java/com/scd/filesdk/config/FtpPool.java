@@ -17,5 +17,6 @@ public class FtpPool {
     private int maxIdle=100;
     private long maxWait=3000;
     private boolean testWhileIdle=true;
+    private boolean testOnOnBorrow = true;
     private long timeBetweenEvictionRunsMillis=1000 * 60;
 }

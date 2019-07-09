@@ -63,9 +63,13 @@ public class FtpUtil {
     }
 
     public static String upload(InputStream inputStream, String remotePath, String filename) throws IOException {
+        // 记录home Path
+        String homePath = ftpClient.printWorkingDirectory();
         makeDirAndChange(remotePath);
         ftpClient.storeFile(filename, inputStream);
-        return ftpClient.printWorkingDirectory() + "/" + filename;
+        // 回到home Path
+        ftpClient.changeWorkingDirectory(homePath);
+        return homePath + remotePath + "/" + filename;
     }
 
     public static void ftpQuit(){
@@ -84,7 +88,7 @@ public class FtpUtil {
      * @return
      * @throws IOException
      */
-    public InputStream download(String remotePath) throws IOException {
+    public static InputStream download(String remotePath) throws IOException {
         return ftpClient.retrieveFileStream(remotePath);
     }
 

@@ -52,7 +52,7 @@ public class FtpUtilMulti {
             }else{
                 LOGGER.info("change work dir "+fpath);
             }
-            LOGGER.info("work dir " +ftpClient.printWorkingDirectory());
+//            LOGGER.info("work dir " +ftpClient.printWorkingDirectory());
         }
     }
 
@@ -60,6 +60,9 @@ public class FtpUtilMulti {
                                 String destPath, String filename) throws IOException {
         // 记录home Path
         String homePath = ftpClient.printWorkingDirectory();
+        if(homePath == null){
+            throw new RuntimeException("ftp homepath is null");
+        }
         makeDirAndChange(ftpClient, destPath);
         ftpClient.storeFile(filename, inputStream);
         // 回到home Path

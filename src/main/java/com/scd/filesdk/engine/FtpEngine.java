@@ -54,7 +54,12 @@ public class FtpEngine extends BaseEngine {
 
     @Override
     public InputStream download(String remotePath) throws IOException {
-        return downloadFile(remotePath);
+        // 使用连接池中的连接下载 会存在问题 work dir null ???
+        // let jvm do it, haha
+        FTPClient ftpClient = FtpUtilMulti.connectFtp(ftp.getHost(), ftp.getPort(),
+                ftp.getUsername(), ftp.getPassword());
+        return FtpUtilMulti.download(ftpClient, remotePath);
+//        return downloadFile(remotePath);
     }
 
     @Override
