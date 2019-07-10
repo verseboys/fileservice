@@ -37,7 +37,7 @@ public class ChannelSftpPoolCreater {
      * @return
      */
     public ChannelSftpPool<ChannelSftp> createChannelSftpPool(){
-		if (channelSftpPool == null){
+        if (channelSftpPool == null){
           lock.lock();
           try {
               if (channelSftpPool == null) {
@@ -59,7 +59,7 @@ public class ChannelSftpPoolCreater {
           } finally {
              lock.unlock();
           }
-		}
+        }
         return channelSftpPool;
     }
 }

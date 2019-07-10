@@ -48,6 +48,8 @@ public class FTPClientFactory extends BasePooledObjectFactory<FTPClient> {
     @Override
     public void passivateObject(PooledObject<FTPClient> p) throws Exception {
         LOGGER.info("passivate Object");
+        FTPClient ftpClient = p.getObject();
+        ftpClient.reinitialize();
     }
 
     @Override
