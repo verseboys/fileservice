@@ -37,27 +37,29 @@ public class ChannelSftpPoolCreater {
      * @return
      */
     public ChannelSftpPool<ChannelSftp> createChannelSftpPool(){
-        lock.lock();
-        try {
-            if (channelSftpPool == null) {
-                GenericObjectPoolConfig<ChannelSftp> config = new GenericObjectPoolConfig<>();
-                config.setMaxTotal(sftpPool.getMaxTotal());
-                config.setMaxIdle(sftpPool.getMaxIdle());
-                config.setTestWhileIdle(sftpPool.isTestWhileIdle());
-                config.setTestOnBorrow(sftpPool.isTestOnOnBorrow());
-                config.setMaxWaitMillis(sftpPool.getMaxWait());
-                config.setTimeBetweenEvictionRunsMillis(sftpPool.getTimeBetweenEvictionRunsMillis());
-                LOGGER.info("create new pool {}", "channelSftpPool");
-                channelSftpPool = new ChannelSftpPool(channelSftpFactory, config);
-            }
+		if (channelSftpPool == null){
+          lock.lock();
+          try {
+              if (channelSftpPool == null) {
+                 GenericObjectPoolConfig<ChannelSftp> config = new GenericObjectPoolConfig<>();
+                 config.setMaxTotal(sftpPool.getMaxTotal());
+                 config.setMaxIdle(sftpPool.getMaxIdle());
+                 config.setTestWhileIdle(sftpPool.isTestWhileIdle());
+                 config.setTestOnBorrow(sftpPool.isTestOnOnBorrow());
+                 config.setMaxWaitMillis(sftpPool.getMaxWait());
+                 config.setTimeBetweenEvictionRunsMillis(sftpPool.getTimeBetweenEvictionRunsMillis());
+                 LOGGER.info("create new pool {}", "channelSftpPool");
+                 channelSftpPool = new ChannelSftpPool(channelSftpFactory, config);
+              }
 //            else{
 //                LOGGER.info("channelSftpPool exists");
 //            }
-        } catch(Exception e){
-            throw new ConstructorPoolException("create ChannelSftpPool error");
-        } finally {
-            lock.unlock();
-        }
+          } catch(Exception e){
+             throw new ConstructorPoolException("create ChannelSftpPool error");
+          } finally {
+             lock.unlock();
+          }
+		}
         return channelSftpPool;
     }
 }

@@ -33,24 +33,26 @@ public class FTPClientPoolCreater {
     private final Lock lock = new ReentrantLock();
 
     public FTPClientPool<FTPClient> createFTPClientPool(){
-        lock.lock();
-        try {
-            if (ftpClientPool == null) {
-                GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-                config.setMaxTotal(ftpPool.getMaxTotal());
-                config.setMaxIdle(ftpPool.getMaxIdle());
-                config.setTestWhileIdle(ftpPool.isTestWhileIdle());
-                config.setTestOnBorrow(ftpPool.isTestOnOnBorrow());
-                config.setMaxWaitMillis(ftpPool.getMaxWait());
-                config.setTimeBetweenEvictionRunsMillis(ftpPool.getTimeBetweenEvictionRunsMillis());
-                LOGGER.info("create new pool {}", "ftpClientPool");
-                ftpClientPool = new FTPClientPool(ftpClientFactory, config);
-            }
-        }catch (Exception e){
-            throw new ConstructorPoolException("create FTPClientPool error");
-        }finally {
-            lock.unlock();
-        }
+        if (ftpClientPool == null){     
+			lock.lock();
+			try {
+     			if (ftpClientPool == null) {
+                	GenericObjectPoolConfig config = new GenericObjectPoolConfig();
+                	config.setMaxTotal(ftpPool.getMaxTotal());
+                	config.setMaxIdle(ftpPool.getMaxIdle());
+                	config.setTestWhileIdle(ftpPool.isTestWhileIdle());
+                	config.setTestOnBorrow(ftpPool.isTestOnOnBorrow());
+                	config.setMaxWaitMillis(ftpPool.getMaxWait());
+                	config.setTimeBetweenEvictionRunsMillis(ftpPool.getTimeBetweenEvictionRunsMillis());
+                	LOGGER.info("create new pool {}", "ftpClientPool");
+                	ftpClientPool = new FTPClientPool(ftpClientFactory, config);
+            	}
+        	}catch (Exception e){
+            	throw new ConstructorPoolException("create FTPClientPool error");
+        	}finally {
+            	lock.unlock();
+        	}
+		}
         return ftpClientPool;
     }
 }
