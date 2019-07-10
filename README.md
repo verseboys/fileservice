@@ -122,3 +122,6 @@ PS Scavenge上的       0.653 秒 (34收集)
 ​      1.断点续传客户端，每一次只下载一个分片，有客户端记录合并了那些分片文件
 
 ​      2.增加 fastdfs  hdfs
+
+## FASTDFS 文件服务搭建
+[https://blog.csdn.net/weixin_43279476/article/details/87789715](https://blog.csdn.net/weixin_43279476/article/details/87789715)
