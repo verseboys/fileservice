@@ -125,3 +125,11 @@ PS Scavenge上的       0.653 秒 (34收集)
 
 ## FASTDFS 文件服务搭建
 [https://blog.csdn.net/weixin_43279476/article/details/87789715](https://blog.csdn.net/weixin_43279476/article/details/87789715)
+
+
+
+#  关联仓库
+
+https://github.com/shootercheng/fastdfs-client-java
+
+在FDFS 作者写的客户端上修改了部分内容，提交了合并请求，但并未合入
