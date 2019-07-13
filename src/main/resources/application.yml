@@ -54,6 +54,8 @@ file:
          username: test
          password: testT2018
          path: /ftpupload
+      fdfs:
+         config: fdfs/fdfsclient.conf
 
 pool:
   file:
