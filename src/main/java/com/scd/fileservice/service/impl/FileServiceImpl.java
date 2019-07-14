@@ -1,6 +1,7 @@
 package com.scd.fileservice.service.impl;
 
 import com.scd.filesdk.common.ServiceInfo;
+import com.scd.filesdk.model.param.UploadParam;
 import com.scd.filesdk.tools.EngineMapperTool;
 import com.scd.filesdk.engine.BaseEngine;
 import com.scd.filesdk.model.param.BreakParam;
@@ -50,7 +51,7 @@ public class FileServiceImpl implements FileService {
     private String downTemp;
 
     @Override
-    public String upload(MultipartFile multipartFile, String type) throws Exception {
+    public String upload(MultipartFile multipartFile, String type, UploadParam uploadParam) throws Exception {
         InputStream inputStream = multipartFile.getInputStream();
         String fileName = multipartFile.getOriginalFilename();
         BaseEngine baseEngine = EngineMapperTool.getFileEngine(type);

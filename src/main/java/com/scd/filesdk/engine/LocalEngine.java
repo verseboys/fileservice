@@ -2,6 +2,7 @@ package com.scd.filesdk.engine;
 
 import com.scd.filesdk.config.Local;
 import com.scd.filesdk.model.param.BreakParam;
+import com.scd.filesdk.model.param.UploadParam;
 import com.scd.filesdk.model.vo.BreakResult;
 import com.scd.filesdk.util.FileUtil;
 import org.slf4j.Logger;
@@ -37,6 +38,11 @@ public class LocalEngine extends BaseEngine{
        String targetPath = storePath + "/" + filename;
        FileUtil.writeInputStreamToLocal(inputStream, targetPath);
        return targetPath;
+    }
+
+    @Override
+    public String upload(InputStream inputStream, UploadParam uploadParam) throws Exception {
+        return upload(inputStream, uploadParam.getFileName());
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.scd.filesdk.pool.ChannelSftpPool;
 import com.scd.filesdk.pool.ChannelSftpPoolCreater;
 import com.scd.filesdk.util.FileUtil;
 import com.scd.fileservice.utils.FileUploadUtil;
+import com.scd.test.mongo.MongoTask;
 import com.scd.test.sftp.task.SftpTask;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.junit.Test;
@@ -109,14 +110,14 @@ public class FileserviceApplicationTests {
 		List<String> filePaths = new ArrayList<>(10);
 		FileUtil.getFilePaths(basePath, filePaths);
 		// 添加 gridFSBucket 属性
-		SftpTask.setGridFSBucket(gridFSBucket);
+		MongoTask.setGridFSBucket(gridFSBucket);
 		ExecutorService threadPool = Executors.newFixedThreadPool(filePaths.size());
 		List<Future<String>> futureList = new ArrayList<>(filePaths.size());
 		for(String filepath : filePaths){
 			FileInputStream fileInputStream = new FileInputStream(filepath);
 			String fileName = FileUtil.getFileName(filepath);
-			SftpTask sftpTask = new SftpTask(fileName, fileInputStream);
-			Future<String> stringFuture = threadPool.submit(sftpTask);
+			MongoTask mongoTask = new MongoTask(fileName, fileInputStream);
+			Future<String> stringFuture = threadPool.submit(mongoTask);
 			futureList.add(stringFuture);
 		}
 		// get 阻塞等待

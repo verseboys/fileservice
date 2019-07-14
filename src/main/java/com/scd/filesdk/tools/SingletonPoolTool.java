@@ -3,6 +3,7 @@ package com.scd.filesdk.tools;
 import com.scd.filesdk.common.PoolType;
 import com.scd.filesdk.pool.ChannelSftpPoolCreater;
 import com.scd.filesdk.pool.FTPClientPoolCreater;
+import com.scd.filesdk.pool.FdfsClientPoolCreater;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +37,22 @@ public class SingletonPoolTool {
         ftpClientPoolCreater = poolCreater;
     }
 
+
+    private static FdfsClientPoolCreater fdfsClientPoolCreater;
+
+    @Autowired
+    public void setFdfsClientPoolCreater(FdfsClientPoolCreater poolCreater){
+        fdfsClientPoolCreater = poolCreater;
+    }
+
     public static GenericObjectPool createPool(PoolType poolType){
         switch (poolType){
             case FTP:
                 return ftpClientPoolCreater.createFTPClientPool();
             case SFTP:
                 return channelSftpPoolCreater.createChannelSftpPool();
+            case FDFS:
+                return fdfsClientPoolCreater.createFdfdClientPool();
             default:
                 throw new NoSuchElementException("no such pooltype "+ poolType);
         }

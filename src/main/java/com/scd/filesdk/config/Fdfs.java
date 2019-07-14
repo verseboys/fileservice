@@ -14,4 +14,6 @@ import org.springframework.stereotype.Component;
 public class Fdfs {
 
     private String config;
+
+    private String group;
 }

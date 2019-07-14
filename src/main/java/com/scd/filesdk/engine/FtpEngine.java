@@ -3,6 +3,7 @@ package com.scd.filesdk.engine;
 import com.scd.filesdk.common.PoolType;
 import com.scd.filesdk.config.Ftp;
 import com.scd.filesdk.model.param.BreakParam;
+import com.scd.filesdk.model.param.UploadParam;
 import com.scd.filesdk.model.vo.BreakResult;
 import com.scd.filesdk.tools.SingletonPoolTool;
 import com.scd.filesdk.util.FileUtil;
@@ -40,6 +41,11 @@ public class FtpEngine extends BaseEngine {
     public String upload(InputStream inputStream, String filename) throws Exception {
         String destPath = FileUtil.getDestPath(ftp.getPath());
         return uploadFile(inputStream, destPath, filename);
+    }
+
+    @Override
+    public String upload(InputStream inputStream, UploadParam uploadParam) throws Exception {
+        return upload(inputStream, uploadParam.getFileName());
     }
 
     @Override

@@ -5,5 +5,5 @@ package com.scd.filesdk.common;
  * @date 2019/7/3.
  */
 public enum PoolType {
-    FTP,SFTP
+    FTP,SFTP,FDFS
 }

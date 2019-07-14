@@ -3,6 +3,7 @@ package com.scd.filesdk.engine;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSDownloadStream;
 import com.scd.filesdk.model.param.BreakParam;
+import com.scd.filesdk.model.param.UploadParam;
 import com.scd.filesdk.model.vo.BreakResult;
 import com.scd.filesdk.util.FileUtil;
 import org.bson.types.ObjectId;
@@ -38,6 +39,11 @@ public class MongoEngine extends BaseEngine{
     public String upload(InputStream inputStream, String filename) throws Exception {
         ObjectId objectId = gridFSBucket.uploadFromStream(filename, inputStream);
         return objectId.toHexString();
+    }
+
+    @Override
+    public String upload(InputStream inputStream, UploadParam uploadParam) throws Exception {
+        return upload(inputStream, uploadParam.getFileName());
     }
 
     @Override

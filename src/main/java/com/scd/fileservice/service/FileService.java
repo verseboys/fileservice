@@ -1,6 +1,7 @@
 package com.scd.fileservice.service;
 
 import com.scd.filesdk.model.param.BreakParam;
+import com.scd.filesdk.model.param.UploadParam;
 import com.scd.fileservice.model.vo.BreakStatus;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,7 +15,7 @@ import java.util.List;
  */
 public interface FileService {
 
-    String upload(MultipartFile multipartFile, String type) throws Exception;
+    String upload(MultipartFile multipartFile, String type, UploadParam uploadParam) throws Exception;
 
     String download(String fileId, HttpServletResponse response) throws Exception;
 

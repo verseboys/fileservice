@@ -5,6 +5,7 @@ import com.mongodb.client.gridfs.GridFSDownloadStream;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.scd.filesdk.common.PoolType;
 import com.scd.filesdk.engine.BaseEngine;
+import com.scd.filesdk.model.param.UploadParam;
 import com.scd.filesdk.tools.EngineMapperTool;
 import com.scd.filesdk.model.param.BreakParam;
 import com.scd.filesdk.tools.SingletonPoolTool;
@@ -71,9 +72,10 @@ public class FileController {
 
     @RequestMapping(value = "/engine/{type}",method = RequestMethod.POST)
     public Result<String> fileUpload(@PathVariable(value = "type") String type,
-                                     @RequestParam("file") MultipartFile multipartFile){
+                                     @RequestParam("file") MultipartFile multipartFile,
+                                     UploadParam uploadParam){
         try {
-            String remotePath = fileService.upload(multipartFile, type);
+            String remotePath = fileService.upload(multipartFile, type, uploadParam);
             return ResultUtil.success(remotePath);
         }catch (Exception e){
             LOGGER.error("upload to {} error", type, e);
