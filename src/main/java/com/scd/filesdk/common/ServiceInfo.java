@@ -12,6 +12,7 @@ public interface ServiceInfo {
         String SFTP = "sftp";
         String FTP = "ftp";
         String MONGO = "mongo";
+        String FDSF = "fdfs";
     }
 
     interface SFTP {

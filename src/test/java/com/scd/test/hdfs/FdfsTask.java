@@ -29,10 +29,19 @@ public class FdfsTask implements Callable<String> {
     public String call() throws Exception {
         LOGGER.info(Thread.currentThread().getName() + " upload to fdfs, file {} time {}", fileName, System.currentTimeMillis());
         String configPath = "fdfs/fdfsclient.conf";
-        StorageClient storageClient = FdfsUtil.connectFdfs(configPath);
-        byte[] bytes = new byte[inputStream.available()];
-        inputStream.read(bytes);
-        String[] result = FdfsUtil.upload(storageClient, bytes, "group1",fileName);
-        return result[0] + "," + result[1];
+        StorageClient storageClient = null;
+        String uploadresult = null;
+        try {
+            storageClient = FdfsUtil.connectFdfs(configPath);
+            byte[] bytes = new byte[inputStream.available()];
+            inputStream.read(bytes);
+            String[] result = FdfsUtil.upload(storageClient, bytes, "group1", fileName);
+            uploadresult =  result[0] + "," + result[1];
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            FdfsUtil.disConnect(storageClient);
+        }
+        return uploadresult;
     }
 }

@@ -1,6 +1,7 @@
 package com.scd.filesdk.engine;
 
 import com.scd.filesdk.config.Fdfs;
+import com.scd.filesdk.exception.DataException;
 import com.scd.filesdk.model.param.BreakParam;
 import com.scd.filesdk.model.param.UploadParam;
 import com.scd.filesdk.model.vo.BreakResult;
@@ -37,7 +38,7 @@ public class FdfsEngine extends BaseEngine {
         byte[] bytes = new byte[inputStream.available()];
         inputStream.read(bytes);
         String[] result = FdfsUtil.upload(storageClient, bytes, fdfs.getGroup(),filename);
-        return result[0] + "," + result[1];
+        return result[0] + "," + result[1] + "," + filename;
     }
 
     @Override
@@ -45,12 +46,12 @@ public class FdfsEngine extends BaseEngine {
         StorageClient storageClient = FdfsUtil.connectFdfs(fdfs.getConfig());
         byte[] bytes = new byte[inputStream.available()];
         inputStream.read(bytes);
-        String groupName = "";
-        if(! StringUtils.isEmpty(uploadParam)){
+        String groupName = fdfs.getGroup();
+        if(!StringUtils.isEmpty(uploadParam)){
             groupName = uploadParam.getGroupName();
         }
         String[] result = FdfsUtil.upload(storageClient, bytes, groupName,uploadParam.getFileName());
-        return result[0] + "," + result[1];
+        return result[0] + "," + result[1] + "," + uploadParam.getFileName();
     }
 
     @Override
@@ -65,7 +66,21 @@ public class FdfsEngine extends BaseEngine {
 
     @Override
     public InputStream download(String remotePath) throws Exception {
-        return null;
+        StorageClient storageClient = FdfsUtil.connectFdfs(fdfs.getConfig());
+        InputStream inputStream = null;
+        if(remotePath.indexOf(",") != -1){
+            String[] storeRes = remotePath.split(",");
+            String group = storeRes[0];
+            String fileId = storeRes[1];
+            String fileName = storeRes[2];
+            byte[] bytes = FdfsUtil.download(storageClient, group, fileId);
+            String ftptemp = "fdfstemp" + "/" + fileName;
+            FileUtil.writeByteToFile(bytes, ftptemp);
+            inputStream = new FileInputStream(ftptemp);
+        }else{
+            throw new DataException("store path data exception " + remotePath);
+        }
+        return inputStream;
     }
 
     @Override

@@ -27,6 +27,9 @@ public class InitConfig implements InitializingBean{
     @Autowired
     private MongoEngine mongoEngine;
 
+    @Autowired
+    private FdfsEngine fdfsEngine;
+
     public Map<String, BaseEngine> getEngineMap() {
         return engineMap;
     }
@@ -40,5 +43,6 @@ public class InitConfig implements InitializingBean{
         engineMap.put(ServiceInfo.ENGINE.SFTP, sftpEngine);
         engineMap.put(ServiceInfo.ENGINE.FTP, ftpEngine);
         engineMap.put(ServiceInfo.ENGINE.MONGO, mongoEngine);
+        engineMap.put(ServiceInfo.ENGINE.FDSF, fdfsEngine);
     }
 }

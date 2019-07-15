@@ -87,7 +87,7 @@ public class FileUtil {
      * @param targetFile
      * @throws IOException
      */
-    public static void copyFileInStream(File sourceFile, File targetFile) throws IOException {
+    public static void copyFileInStream(File sourceFile, File targetFile) {
         InputStream input = null;
         OutputStream output = null;
         try {
@@ -102,10 +102,18 @@ public class FileUtil {
             e.printStackTrace();
         } finally {
             if(input != null){
-                input.close();
+                try {
+                    input.close();
+                }catch (IOException e){
+                    LOGGER.error("close stream error");
+                }
             }
             if(output != null){
-                output.close();
+                try {
+                    output.close();
+                }catch (IOException e){
+                    LOGGER.error("close stream error");
+                }
             }
         }
     }
@@ -116,7 +124,7 @@ public class FileUtil {
      * @param targetpath
      * @throws IOException
      */
-    public static void writeInputStreamToLocal(InputStream inputStream, String targetpath) throws IOException{
+    public static void writeInputStreamToLocal(InputStream inputStream, String targetpath) {
         FileOutputStream fileOutputStream = null;
         // 创建文件目录
         String filedir = getFileDir(targetpath);
@@ -132,11 +140,15 @@ public class FileUtil {
                 fileOutputStream.write(filebytes, 0, index);
                 fileOutputStream.flush();
             }
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             if(fileOutputStream != null){
-                fileOutputStream.close();
+                try {
+                    fileOutputStream.close();
+                }catch (IOException e){
+                    LOGGER.error("close stream error");
+                }
             }
         }
     }
@@ -147,7 +159,7 @@ public class FileUtil {
      * @return
      * @throws IOException
      */
-    public static byte[] getBytes(String filePath) throws IOException {
+    public static byte[] getBytes(String filePath) {
         FileInputStream fis = null;
         ByteArrayOutputStream bos = null;
         byte[] buffer = null;
@@ -167,10 +179,18 @@ public class FileUtil {
             e.printStackTrace();
         } finally {
             if(fis != null){
-                fis.close();
+                try {
+                    fis.close();
+                }catch (IOException e){
+                    LOGGER.error("close stream error");
+                }
             }
             if(bos != null){
-                bos.close();
+                try {
+                    bos.close();
+                }catch (IOException e){
+                    LOGGER.error("close stream error");
+                }
             }
         }
         return buffer;
@@ -182,7 +202,7 @@ public class FileUtil {
      * @param filepath
      * @throws IOException
      */
-    public static void writeByteToFile(byte[] fbyte, String filepath) throws IOException {
+    public static void writeByteToFile(byte[] fbyte, String filepath) {
         BufferedOutputStream bos = null;
         FileOutputStream fos = null;
         // 创建文件夹
@@ -193,14 +213,22 @@ public class FileUtil {
             fos = new FileOutputStream(file);
             bos = new BufferedOutputStream(fos);
             bos.write(fbyte);
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             if (bos != null) {
-                bos.close();
+                try {
+                    bos.close();
+                }catch (IOException e){
+                    LOGGER.error("close stream error");
+                }
             }
             if (fos != null) {
-                fos.close();
+                try {
+                    fos.close();
+                }catch (IOException e){
+                    LOGGER.error("close stream error");
+                }
             }
         }
     }

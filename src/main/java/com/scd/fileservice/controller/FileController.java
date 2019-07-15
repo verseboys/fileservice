@@ -74,6 +74,10 @@ public class FileController {
     public Result<String> fileUpload(@PathVariable(value = "type") String type,
                                      @RequestParam("file") MultipartFile multipartFile,
                                      UploadParam uploadParam){
+        String checkResult = checkUploadParam(multipartFile, uploadParam);
+        if(checkResult.length() > 0){
+            return ResultUtil.errorWithOutData(checkResult);
+        }
         try {
             String remotePath = fileService.upload(multipartFile, type, uploadParam);
             return ResultUtil.success(remotePath);
@@ -81,6 +85,24 @@ public class FileController {
             LOGGER.error("upload to {} error", type, e);
         }
         return ResultUtil.errorWithOutData("upload to "+type + " error");
+    }
+
+    private String checkUploadParam(MultipartFile multipartFile, UploadParam uploadParam) {
+        StringBuilder stringBuilder = new StringBuilder("");
+        if(multipartFile == null){
+            stringBuilder.append("multipartFile is null").append("\n");
+        }
+        if(StringUtils.isEmpty(multipartFile.getOriginalFilename())){
+            stringBuilder.append("originalFilename is empty").append("\n");
+        }
+        if(uploadParam == null){
+            uploadParam = new UploadParam();
+        }
+        // 兼容老的请求参数，可以不用传 fileName
+        if(StringUtils.isEmpty(uploadParam.getFileName())){
+            uploadParam.setFileName(multipartFile.getOriginalFilename());
+        }
+        return stringBuilder.toString();
     }
 
     @RequestMapping(value = "/breakpoint/checkfilestatus", method = RequestMethod.POST)

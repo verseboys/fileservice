@@ -53,9 +53,8 @@ public class FileServiceImpl implements FileService {
     @Override
     public String upload(MultipartFile multipartFile, String type, UploadParam uploadParam) throws Exception {
         InputStream inputStream = multipartFile.getInputStream();
-        String fileName = multipartFile.getOriginalFilename();
         BaseEngine baseEngine = EngineMapperTool.getFileEngine(type);
-        String remotePath = baseEngine.upload(inputStream, fileName);
+        String remotePath = baseEngine.upload(inputStream, uploadParam);
         Map<String, String> fileInfo = createFileInfo(multipartFile, type, remotePath);
         String fileId = UUID.randomUUID().toString();
         fileRedisData.saveFileInfo(fileId, fileInfo);

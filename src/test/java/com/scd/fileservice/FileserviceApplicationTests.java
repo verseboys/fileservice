@@ -9,7 +9,6 @@ import com.scd.filesdk.pool.ChannelSftpPoolCreater;
 import com.scd.filesdk.util.FileUtil;
 import com.scd.fileservice.utils.FileUploadUtil;
 import com.scd.test.mongo.MongoTask;
-import com.scd.test.sftp.task.SftpTask;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.junit.Test;
 import org.junit.runner.RunWith;
