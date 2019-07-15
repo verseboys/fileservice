@@ -47,7 +47,7 @@ public class FdfsEngine extends BaseEngine {
         byte[] bytes = new byte[inputStream.available()];
         inputStream.read(bytes);
         String groupName = fdfs.getGroup();
-        if(!StringUtils.isEmpty(uploadParam)){
+        if(!StringUtils.isEmpty(uploadParam.getGroupName())){
             groupName = uploadParam.getGroupName();
         }
         String[] result = FdfsUtil.upload(storageClient, bytes, groupName,uploadParam.getFileName());
