@@ -1,7 +1,7 @@
 package com.scd.test;
 
 import com.scd.filesdk.util.FileUtil;
-import com.scd.test.hdfs.FdfsTask;
+import com.scd.test.fdfs.FdfsTask;
 import com.scd.test.sftp.task.SftpTask;
 import org.junit.Test;
 import org.slf4j.Logger;

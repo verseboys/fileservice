@@ -98,10 +98,12 @@ public class SftpEngine extends BaseEngine{
             channelSftp = (ChannelSftp) sftpPool.borrowObject();
             remotePath = SftpUtilMulti.upload(channelSftp, inputStream, destPath, filename);
         }catch (Exception e){
-            throw new RuntimeException("upload file to sftp error, filename "+filename);
+            throw new RuntimeException("upload file to sftp error, filename "+filename, e);
         }finally {
-            sftpPool.returnObject(channelSftp);
-            SingletonPoolTool.showPoolInfo(PoolType.SFTP);
+            if (sftpPool != null && channelSftp != null) {
+                sftpPool.returnObject(channelSftp);
+                SingletonPoolTool.showPoolInfo(PoolType.SFTP);
+            }
         }
         return remotePath;
     }
@@ -117,8 +119,10 @@ public class SftpEngine extends BaseEngine{
         }catch (Exception e){
             throw new RuntimeException("download file from sftp error, filename "+remotePath);
         }finally {
-            sftpPool.returnObject(channelSftp);
-            SingletonPoolTool.showPoolInfo(PoolType.SFTP);
+            if(sftpPool != null && channelSftp != null) {
+                sftpPool.returnObject(channelSftp);
+                SingletonPoolTool.showPoolInfo(PoolType.SFTP);
+            }
         }
         return inputStream;
     }

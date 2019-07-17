@@ -99,10 +99,12 @@ public class FtpEngine extends BaseEngine {
             ftpClient = (FTPClient) ftpPool.borrowObject();
             remotePath = FtpUtilMulti.upload(ftpClient, inputStream, destPath, filename);
         }catch (Exception e){
-            throw new RuntimeException("upload file to ftp error, filename "+filename);
+            throw new RuntimeException("upload file to ftp error, filename "+filename, e);
         }finally {
-            ftpPool.returnObject(ftpClient);
-            SingletonPoolTool.showPoolInfo(PoolType.FTP);
+            if(ftpPool != null && ftpClient != null) {
+                ftpPool.returnObject(ftpClient);
+                SingletonPoolTool.showPoolInfo(PoolType.FTP);
+            }
         }
         return remotePath;
     }
@@ -116,10 +118,12 @@ public class FtpEngine extends BaseEngine {
             ftpClient = (FTPClient) ftpPool.borrowObject();
             inputStream = FtpUtilMulti.download(ftpClient, remotePath);
         }catch (Exception e){
-            throw new RuntimeException("upload file from ftp error, filename "+remotePath);
+            throw new RuntimeException("upload file from ftp error, filename "+remotePath, e);
         }finally {
-            ftpPool.returnObject(ftpClient);
-            SingletonPoolTool.showPoolInfo(PoolType.FTP);
+            if(ftpPool != null && ftpClient != null) {
+                ftpPool.returnObject(ftpClient);
+                SingletonPoolTool.showPoolInfo(PoolType.FTP);
+            }
         }
         return inputStream;
     }

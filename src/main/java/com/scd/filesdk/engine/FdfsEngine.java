@@ -1,12 +1,15 @@
 package com.scd.filesdk.engine;
 
+import com.scd.filesdk.common.PoolType;
 import com.scd.filesdk.config.Fdfs;
 import com.scd.filesdk.exception.DataException;
 import com.scd.filesdk.model.param.BreakParam;
 import com.scd.filesdk.model.param.UploadParam;
 import com.scd.filesdk.model.vo.BreakResult;
+import com.scd.filesdk.tools.SingletonPoolTool;
 import com.scd.filesdk.util.FdfsUtil;
 import com.scd.filesdk.util.FileUtil;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.csource.fastdfs.StorageClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,15 +46,16 @@ public class FdfsEngine extends BaseEngine {
 
     @Override
     public String upload(InputStream inputStream, UploadParam uploadParam) throws Exception {
-        StorageClient storageClient = FdfsUtil.connectFdfs(fdfs.getConfig());
-        byte[] bytes = new byte[inputStream.available()];
-        inputStream.read(bytes);
-        String groupName = fdfs.getGroup();
-        if(!StringUtils.isEmpty(uploadParam.getGroupName())){
-            groupName = uploadParam.getGroupName();
-        }
-        String[] result = FdfsUtil.upload(storageClient, bytes, groupName,uploadParam.getFileName());
-        return result[0] + "," + result[1] + "," + uploadParam.getFileName();
+//        StorageClient storageClient = FdfsUtil.connectFdfs(fdfs.getConfig());
+//        byte[] bytes = new byte[inputStream.available()];
+//        inputStream.read(bytes);
+//        String groupName = fdfs.getGroup();
+//        if(!StringUtils.isEmpty(uploadParam.getGroupName())){
+//            groupName = uploadParam.getGroupName();
+//        }
+//        String[] result = FdfsUtil.upload(storageClient, bytes, groupName,uploadParam.getFileName());
+//        return result[0] + "," + result[1] + "," + uploadParam.getFileName();
+         return uploadFile(inputStream, uploadParam);
     }
 
     @Override
@@ -66,19 +70,75 @@ public class FdfsEngine extends BaseEngine {
 
     @Override
     public InputStream download(String remotePath) throws Exception {
-        StorageClient storageClient = FdfsUtil.connectFdfs(fdfs.getConfig());
-        InputStream inputStream = null;
-        if(remotePath.indexOf(",") != -1){
-            String[] storeRes = remotePath.split(",");
-            String group = storeRes[0];
-            String fileId = storeRes[1];
-            String fileName = storeRes[2];
-            byte[] bytes = FdfsUtil.download(storageClient, group, fileId);
-            String ftptemp = "fdfstemp" + "/" + fileName;
-            FileUtil.writeByteToFile(bytes, ftptemp);
-            inputStream = new FileInputStream(ftptemp);
-        }else{
-            throw new DataException("store path data exception " + remotePath);
+//        StorageClient storageClient = FdfsUtil.connectFdfs(fdfs.getConfig());
+//        InputStream inputStream = null;
+//        if(remotePath.indexOf(",") != -1){
+//            String[] storeRes = remotePath.split(",");
+//            String group = storeRes[0];
+//            String fileId = storeRes[1];
+//            String fileName = storeRes[2];
+//            byte[] bytes = FdfsUtil.download(storageClient, group, fileId);
+//            String ftptemp = "fdfstemp" + "/" + fileName;
+//            FileUtil.writeByteToFile(bytes, ftptemp);
+//            inputStream = new FileInputStream(ftptemp);
+//        }else{
+//            throw new DataException("store path data exception " + remotePath);
+//        }
+        return downloadFile(remotePath);
+    }
+
+    private String uploadFile(InputStream inputStream, UploadParam uploadParam) throws Exception {
+        GenericObjectPool fdfsClientPool = null;
+        StorageClient storageClient = null;
+        String remotePath;
+        try {
+            fdfsClientPool = SingletonPoolTool.createPool(PoolType.FDFS);
+            storageClient = (StorageClient) fdfsClientPool.borrowObject();
+            byte[] bytes = new byte[inputStream.available()];
+            inputStream.read(bytes);
+            String groupName = fdfs.getGroup();
+            if (!StringUtils.isEmpty(uploadParam.getGroupName())) {
+                groupName = uploadParam.getGroupName();
+            }
+            String[] result = FdfsUtil.upload(storageClient, bytes, groupName, uploadParam.getFileName());
+            remotePath = result[0] + "," + result[1] + "," + uploadParam.getFileName();
+        }catch (Exception e){
+            throw new RuntimeException("upload file to fdfs error", e);
+        }finally {
+            if(fdfsClientPool != null && storageClient != null){
+                SingletonPoolTool.showPoolInfo(PoolType.FDFS);
+                fdfsClientPool.returnObject(storageClient);
+            }
+        }
+        return remotePath;
+    }
+
+    private InputStream downloadFile(String remotePath){
+        GenericObjectPool fdfsClientPool = null;
+        StorageClient storageClient = null;
+        InputStream inputStream;
+        try {
+            fdfsClientPool = SingletonPoolTool.createPool(PoolType.FDFS);
+            storageClient = (StorageClient) fdfsClientPool.borrowObject();
+            if(remotePath.indexOf(",") != -1){
+                String[] storeRes = remotePath.split(",");
+                String group = storeRes[0];
+                String fileId = storeRes[1];
+                String fileName = storeRes[2];
+                byte[] bytes = FdfsUtil.download(storageClient, group, fileId);
+                String ftptemp = "fdfstemp" + "/" + fileName;
+                FileUtil.writeByteToFile(bytes, ftptemp);
+                inputStream = new FileInputStream(ftptemp);
+            }else{
+                throw new DataException("store path data exception " + remotePath);
+            }
+        }catch (Exception e){
+            throw new RuntimeException("download file from fdfs error", e);
+        }finally {
+            if(fdfsClientPool != null && storageClient != null){
+                SingletonPoolTool.showPoolInfo(PoolType.FDFS);
+                fdfsClientPool.returnObject(storageClient);
+            }
         }
         return inputStream;
     }

@@ -1,4 +1,4 @@
-package com.scd.test.hdfs;
+package com.scd.test.fdfs;
 
 import com.scd.filesdk.util.FdfsUtil;
 import org.csource.fastdfs.StorageClient;
