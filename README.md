@@ -131,5 +131,3 @@ PS Scavenge上的       0.653 秒 (34收集)
 #  关联仓库
 
 https://github.com/shootercheng/fastdfs-client-java
-
-在FDFS 作者写的客户端上修改了部分内容，提交了合并请求，但并未合入
