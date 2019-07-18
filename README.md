@@ -124,7 +124,11 @@ PS Scavenge上的       0.653 秒 (34收集)
 ​      2.增加 fastdfs  hdfs
 
 ## FASTDFS 文件服务搭建
-[https://blog.csdn.net/weixin_43279476/article/details/87789715](https://blog.csdn.net/weixin_43279476/article/details/87789715)
+[https://blog.csdn.net/weixin_43279476/article/details/87789715](https://blog.csdn.net/weixin_43279476/article/details/87789715) 
+
+## Hadoop 环境搭建
+[https://blog.csdn.net/weixin_42001089/article/details/81865101]
+(https://blog.csdn.net/weixin_42001089/article/details/81865101)
 
 
 
