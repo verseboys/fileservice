@@ -129,8 +129,14 @@ PS Scavenge上的       0.653 秒 (34收集)
 
 ## Hadoop 环境搭建
 
-https://blog.csdn.net/weixin_42001089/article/details/81865101
+```java
+https://mirrors.cnnic.cn/apache/hadoop/common/
 
+tar -zxvf hadoop-2.6.5.tar.gz -C /usr/local/
+
+/usr/local/hadoop-2.6.5/bin# ./hadoop version
+
+```
 
 
 #  关联仓库
