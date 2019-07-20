@@ -5,6 +5,7 @@ import org.csource.fastdfs.StorageClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Callable;
 
@@ -41,6 +42,13 @@ public class FdfsTask implements Callable<String> {
             e.printStackTrace();
         }finally {
             FdfsUtil.disConnect(storageClient);
+            if(inputStream != null){
+                try {
+                    inputStream.close();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
         }
         return uploadresult;
     }

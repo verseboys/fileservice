@@ -2,11 +2,11 @@ package com.scd.filesdk.util;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -48,6 +48,7 @@ public class HdfsUtil {
         String fileStorePath = remotePath + "/" + fileName;
         FSDataOutputStream outputStream = fs.create(new Path(fileStorePath), true);
         IOUtils.copy(inputStream, outputStream);
+        LOGGER.debug("upload file success");
         return fileStorePath;
     }
 
@@ -90,18 +91,19 @@ public class HdfsUtil {
         if(!fs.exists(remotePath)){
             result = fs.mkdirs(remotePath);
         }
+        LOGGER.debug("file exists");
         return result;
     }
 
     /**
-     * 删除文件
+     * delete directory or file
      * @param fs
      * @param filePath
      * @throws IOException
      */
-    public static void deleteFile(FileSystem fs, String filePath) throws IOException {
+    public static boolean deleteFile(FileSystem fs, String filePath) throws IOException {
         Path path = new Path(filePath);
-        fs.delete(path);
+        return fs.delete(path, true);
     }
 
     /**
@@ -117,10 +119,7 @@ public class HdfsUtil {
     }
 
     public static void main(String[] args) throws Exception {
-
-
          String corePath = "hdfs/core-site.xml";
-//         FileSystem fileSystem = initFileSystem(corePath, "scd");
          String url = "hdfs://192.168.1.101:9000";
          FileSystem fileSystem = initFsUrl(url, "scd");
 
