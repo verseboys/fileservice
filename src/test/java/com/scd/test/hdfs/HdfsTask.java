@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -49,7 +48,7 @@ public class HdfsTask implements Runnable {
         }catch (Exception e){
             e.printStackTrace();
         }finally {
-            HdfsCallBack.progressResult(result, index, hdfsUploadResult);
+            HdfsCallBack.processResult(result, index, hdfsUploadResult);
             countDownLatch.countDown();
         }
     }

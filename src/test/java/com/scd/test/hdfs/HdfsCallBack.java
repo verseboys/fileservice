@@ -43,7 +43,7 @@ public class HdfsCallBack {
         return result;
     }
 
-    public static void progressResult(HdfsUploadResult[] hdfsUploadResults, int index, HdfsUploadResult hdfsUploadResult){
+    public static void processResult(HdfsUploadResult[] hdfsUploadResults, int index, HdfsUploadResult hdfsUploadResult){
         if(index > hdfsUploadResults.length - 1){
             return ;
         }
