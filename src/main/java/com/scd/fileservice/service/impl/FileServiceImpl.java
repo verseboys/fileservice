@@ -47,7 +47,7 @@ public class FileServiceImpl implements FileService {
     @Qualifier(value = "fileThreadPool")
     private ExecutorService fileThreadPool;
 
-    @Value("${temp.breakpath}")
+    @Value("${temp.mergebreakpath}")
     private String downTemp;
 
     @Override
@@ -88,44 +88,44 @@ public class FileServiceImpl implements FileService {
             FileDownLoadUtil.outputFile(response, inputStream, fileName.toString());
         }else{
             // 查询断点信息
-//            Map<Object, Object> breaFilekMap = fileRedisData.findBreakFileInfo(fileId);
-//            Object status = breaFilekMap.get("file_status");
-//            if( ! CommonConstant.STR_TRUE.equals(status)){
-//                return "data exception";
-//            }
-//            Object chunkNum = breaFilekMap.get("chunk_num");
-//            Object chunkSizeObj = breaFilekMap.get("chunk_size");
-//            int chunks = Integer.valueOf(chunkNum.toString());
-//            List<String> fileAddress = fileRedisData.findBreakAddress(fileId, chunks);
-//            long chunkSize = Long.valueOf(chunkSizeObj.toString());
-//            // 创建临时文件目录
-//            String tempPath = downTemp + File.separator + System.currentTimeMillis() + File.separator + fileName;
-//            File tempFile = FileUtil.createFile(tempPath);
-//            if(tempFile.exists() && tempFile.isFile()){
-//                tempFile.delete();
-//            }
-//            List<Future<BreakMergeResult>> futureList = new ArrayList<>(fileAddress.size());
-//            for(String address : fileAddress){
-//                int index = address.indexOf("_");
-//                String chunkStr = address.substring(0,index);
-//                String fileaddress = address.substring(index + 1);
-//                BreakTask breakTask = new BreakTask(Integer.valueOf(chunkStr),chunkSize,
-//                        uploadtype.toString(), fileaddress, tempFile);
-//                Future<BreakMergeResult> future = fileThreadPool.submit(breakTask);
-//                futureList.add(future);
-//            }
-//            for(Future<BreakMergeResult> future : futureList){
-//                try {
-//                    BreakMergeResult breakMergeResult = future.get();
-//                    LOGGER.info("merge file task result {}", breakMergeResult);
-//                }catch (Exception e){
-//                    LOGGER.error("get merge file task error");
-//                }
-//            }
-//            InputStream inputStream = new FileInputStream(tempFile);
-//            // 输出文件
-//            FileDownLoadUtil.outputFile(response, inputStream, fileName.toString());
-              return "use client to download break file, wating .....";
+            Map<Object, Object> breaFilekMap = fileRedisData.findBreakFileInfo(fileId);
+            Object status = breaFilekMap.get("file_status");
+            if( ! CommonConstant.STR_TRUE.equals(status)){
+                return "data exception";
+            }
+            Object chunkNum = breaFilekMap.get("chunk_num");
+            Object chunkSizeObj = breaFilekMap.get("chunk_size");
+            int chunks = Integer.valueOf(chunkNum.toString());
+            List<String> fileAddress = fileRedisData.findBreakAddress(fileId, chunks);
+            long chunkSize = Long.valueOf(chunkSizeObj.toString());
+            // 创建临时文件目录
+            String tempPath = downTemp + File.separator + System.currentTimeMillis() + File.separator + fileName;
+            File tempFile = FileUtil.createFile(tempPath);
+            if(tempFile.exists() && tempFile.isFile()){
+                tempFile.delete();
+            }
+            List<Future<BreakMergeResult>> futureList = new ArrayList<>(fileAddress.size());
+            for(String address : fileAddress){
+                int index = address.indexOf("_");
+                String chunkStr = address.substring(0,index);
+                String fileaddress = address.substring(index + 1);
+                BreakTask breakTask = new BreakTask(Integer.valueOf(chunkStr),chunkSize,
+                        uploadtype.toString(), fileaddress, tempFile);
+                Future<BreakMergeResult> future = fileThreadPool.submit(breakTask);
+                futureList.add(future);
+            }
+            for(Future<BreakMergeResult> future : futureList){
+                try {
+                    BreakMergeResult breakMergeResult = future.get();
+                    LOGGER.info("merge file task result {}", breakMergeResult);
+                }catch (Exception e){
+                    LOGGER.error("get merge file task error");
+                }
+            }
+            InputStream inputStream = new FileInputStream(tempFile);
+            // 输出文件
+            FileDownLoadUtil.outputFile(response, inputStream, fileName.toString());
+//              return "use client to download break file, wating .....";
         }
         return "";
     }
@@ -139,6 +139,8 @@ public class FileServiceImpl implements FileService {
         }
         String md5 = breakParam.getMd5();
         String result = CommonConstant.RESULT_PART_UPLOAD;
+        // save chunk upload info to db
+        saveChunkInfo(breakParam, breakResult, type);
         if(checkAllPartUpload(breakParam, breakResult, type)){
             String fileName = breakParam.getName();
             if(ServiceInfo.ENGINE.LOCAL.equals(type)){
@@ -202,29 +204,36 @@ public class FileServiceImpl implements FileService {
          fileRedisData.saveFileId(breakParam.getMd5());
     }
 
-    private synchronized boolean checkAllPartUpload(BreakParam breakParam, BreakResult breakResult, String type) {
+    private void saveChunkInfo(BreakParam breakParam, BreakResult breakResult, String type){
         // 断点续传使用文件 md5 作为 fileId
         String md5 = breakParam.getMd5();
-        long chunkSize = breakParam.getChunkSize();
         int curChunk = breakParam.getChunk();
-        int chunks = breakParam.getChunks();
         // 如果不是存储本地，记录每一块的存储地址
         if(! ServiceInfo.ENGINE.LOCAL.equals(type)){
             // 连接上第几块
             String dataBasePath = curChunk + "_" + breakResult.getFilePath();
             fileRedisData.saveBreakAddress(md5,dataBasePath);
         }
+    }
+
+    private boolean checkAllPartUpload(BreakParam breakParam, BreakResult breakResult, String type) {
+        String md5 = breakParam.getMd5();
+        long chunkSize = breakParam.getChunkSize();
+        int curChunk = breakParam.getChunk();
+        int chunks = breakParam.getChunks();
         // 文件第一次上传初始化 块值
-        if(! fileRedisData.existsBreakRecord(md5)){
-            // 存储断点信息
-            Map<String, String> breakFileMap = createBreakFileInfo(chunkSize, chunks, false);
-            fileRedisData.saveBreakInfo(md5, breakFileMap);
-            if(chunks == 0 || chunks == 1){
-                return true;
+        synchronized (FileServiceImpl.class) {
+            if (!fileRedisData.existsBreakRecord(md5)) {
+                // 存储断点信息
+                Map<String, String> breakFileMap = createBreakFileInfo(chunkSize, chunks, false);
+                fileRedisData.saveBreakInfo(md5, breakFileMap);
+                if (chunks == 0 || chunks == 1) {
+                    return true;
+                }
+                // 初始化上传块记录
+                LOGGER.info("first upload {}, init part record", md5);
+                fileRedisData.initBreakRecord(md5, chunks);
             }
-            // 初始化上传块记录
-            LOGGER.info("first upload {}, init part record", md5);
-            fileRedisData.initBreakRecord(md5, chunks);
         }
         // 当前块设置为 1
         fileRedisData.setuploadedChunk(md5, curChunk);

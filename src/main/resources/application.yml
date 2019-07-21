@@ -79,4 +79,4 @@ pool:
      timeBetweenEvictionRunsMillis: 60000
 
 temp:
-  breakpath: /temp/breakmerge
+  mergebreakpath: /temp/breakmerge

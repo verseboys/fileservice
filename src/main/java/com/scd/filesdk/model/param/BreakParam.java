@@ -44,4 +44,7 @@ public class BreakParam {
     @ApiModelProperty(required = true)
     private String md5;
 
+    @ApiModelProperty(required = false, notes = "Fdfs group")
+    private String groupName;
+
 }

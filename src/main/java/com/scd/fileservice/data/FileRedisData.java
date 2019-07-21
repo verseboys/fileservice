@@ -65,6 +65,13 @@ public class FileRedisData {
                 return null;
             }
         });
+        // add fileId to result map
+        int i = 0;
+        for(String fileId : fileIds){
+            Map<Object, Object> map = (Map<Object, Object>) objectList.get(i);
+            map.put("fileId", fileId);
+            i++;
+        }
         return objectList;
     }
 

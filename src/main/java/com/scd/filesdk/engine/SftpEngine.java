@@ -117,7 +117,7 @@ public class SftpEngine extends BaseEngine{
             channelSftp = (ChannelSftp) sftpPool.borrowObject();
             inputStream = SftpUtilMulti.download(channelSftp, remotePath);
         }catch (Exception e){
-            throw new RuntimeException("download file from sftp error, filename "+remotePath);
+            throw new RuntimeException("download file from sftp error, filename "+remotePath, e);
         }finally {
             if(sftpPool != null && channelSftp != null) {
                 sftpPool.returnObject(channelSftp);

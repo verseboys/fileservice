@@ -11,6 +11,8 @@ import com.scd.filesdk.util.FdfsUtil;
 import com.scd.filesdk.util.FileUtil;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.csource.fastdfs.StorageClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -24,6 +26,8 @@ import java.io.InputStream;
  */
 @Component
 public class FdfsEngine extends BaseEngine {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FdfsEngine.class);
 
     @Autowired
     private Fdfs fdfs;
@@ -145,6 +149,22 @@ public class FdfsEngine extends BaseEngine {
 
     @Override
     public BreakResult upload(BreakParam breakParam) {
-        return null;
+        BreakResult breakResult = new BreakResult();
+        String originFileName = breakParam.getName();
+        int curChunk = breakParam.getChunk();
+        long chunkSize = breakParam.getChunkSize();
+        try {
+            LOGGER.info("【FDFS】 filename : {}, chunk : {}, chunksize : {}", originFileName, curChunk, chunkSize);
+            InputStream inputStream = breakParam.getFile().getInputStream();
+            String fileName =  curChunk + "_" + breakParam.getChunkSize() + "_" + originFileName;
+            UploadParam uploadParam = new UploadParam(fileName, breakParam.getGroupName());
+            String storePath = uploadFile(inputStream, uploadParam);
+            breakResult.setWriteSuccess(true);
+            breakResult.setFilePath(storePath);
+        }catch (Exception e){
+            LOGGER.error("upload chunk file to FDFS error filename : {} chunk : {}", originFileName, curChunk);
+            breakResult.setWriteSuccess(false);
+        }
+        return breakResult;
     }
 }

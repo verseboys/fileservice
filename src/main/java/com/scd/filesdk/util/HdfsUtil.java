@@ -79,7 +79,7 @@ public class HdfsUtil {
     }
 
     /**
-     * create file path
+     * create dir
      * @param fs
      * @param path
      * @return
@@ -87,7 +87,7 @@ public class HdfsUtil {
      */
     public static boolean createRemotePath(FileSystem fs, String path) throws IOException{
         Path remotePath = new Path(path);
-        boolean result = false;
+        boolean result = true;
         if(!fs.exists(remotePath)){
             result = fs.mkdirs(remotePath);
         }

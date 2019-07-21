@@ -55,7 +55,7 @@ public class FTPClientFactory extends BasePooledObjectFactory<FTPClient> {
     @Override
     public boolean validateObject(PooledObject<FTPClient> p) {
         FTPClient ftpClient = p.getObject();
-        if(ftpClient.isConnected()) {
+        if(ftpClient.isAvailable()) {
             return true;
         }
         return false;
