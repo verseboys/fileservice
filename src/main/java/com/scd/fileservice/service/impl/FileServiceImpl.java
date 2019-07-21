@@ -5,13 +5,13 @@ import com.scd.filesdk.model.param.UploadParam;
 import com.scd.filesdk.tools.EngineMapperTool;
 import com.scd.filesdk.engine.BaseEngine;
 import com.scd.filesdk.model.param.BreakParam;
-import com.scd.filesdk.model.task.BreakTask;
-import com.scd.filesdk.model.vo.BreakMergeResult;
 import com.scd.filesdk.model.vo.BreakResult;
 import com.scd.filesdk.util.FileUtil;
 import com.scd.fileservice.common.CommonConstant;
 import com.scd.fileservice.data.FileRedisData;
 import com.scd.fileservice.model.vo.BreakStatus;
+import com.scd.fileservice.model.vo.BreakFileInfo;
+import com.scd.fileservice.model.vo.DownParam;
 import com.scd.fileservice.service.FileService;
 import com.scd.fileservice.utils.FileDownLoadUtil;
 import org.slf4j.Logger;
@@ -25,11 +25,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 /**
  * @author chengdu
@@ -296,5 +294,43 @@ public class FileServiceImpl implements FileService {
         map.put(CommonConstant.FILEINFO.uploadtime.getValue(),String.valueOf(System.currentTimeMillis()));
         map.put(CommonConstant.FILEINFO.storetype.getValue(),storeType);
         return map;
+    }
+
+    public BreakFileInfo checkFile(String fileId){
+        String msg = "";
+        BreakFileInfo breakFileInfo = new BreakFileInfo();
+        if(!fileRedisData.existsFileId(fileId)){
+            msg = "file not exists";
+            breakFileInfo.setMessage(msg);
+        }else{
+            breakFileInfo.setExists(true);
+            Map<Object, Object> fileInfoMap = fileRedisData.findFileInfo(fileId);
+            Object uploadtype = fileInfoMap.get(CommonConstant.FILEINFO.uploadtype.getValue());
+            Object storetype = fileInfoMap.get(CommonConstant.FILEINFO.storetype.getValue());
+            breakFileInfo.setUploadType(String.valueOf(uploadtype));
+            if(! CommonConstant.STORE_TYPE_BLOCK.equals(storetype)){
+                msg = "file not block store";
+                breakFileInfo.setMessage(msg);
+                return breakFileInfo;
+            }
+            breakFileInfo.setBlock(true);
+            Map<Object, Object> breakFileInfoMap = fileRedisData.findBreakFileInfo(fileId);
+            Object chunks = breakFileInfoMap.get(CommonConstant.BREAKINFO.chunknum.getValue());
+            Object chunkSize = breakFileInfoMap.get(CommonConstant.BREAKINFO.chunksize.getValue());
+            breakFileInfo.setChunkSize(Long.valueOf(chunkSize.toString()));
+            List<String> fileAddress = fileRedisData.findBreakAddress(fileId, Integer.valueOf(chunks.toString()));
+            breakFileInfo.setFileAddress(fileAddress);
+        }
+        return breakFileInfo;
+    }
+
+    public byte[] downloadChunk(DownParam downParam) throws Exception {
+        String uploadType = downParam.getUploadType();
+        String fileId = downParam.getFileId();
+        String address = fileRedisData.findOneBreakAddress(fileId, downParam.getChunk());
+        int index = address.indexOf("_");
+        address = address.substring(index + 1);
+        BaseEngine baseEngine = EngineMapperTool.getFileEngine(uploadType);
+        return baseEngine.downloadByte(address);
     }
 }

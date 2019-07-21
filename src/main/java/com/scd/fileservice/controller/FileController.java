@@ -10,8 +10,7 @@ import com.scd.filesdk.tools.EngineMapperTool;
 import com.scd.filesdk.model.param.BreakParam;
 import com.scd.filesdk.tools.SingletonPoolTool;
 import com.scd.fileservice.data.FileRedisData;
-import com.scd.fileservice.model.vo.BreakStatus;
-import com.scd.fileservice.model.vo.Result;
+import com.scd.fileservice.model.vo.*;
 import com.scd.fileservice.service.FileService;
 import com.scd.fileservice.utils.FileDownLoadUtil;
 import com.scd.fileservice.utils.ResultUtil;
@@ -167,7 +166,7 @@ public class FileController {
     @RequestMapping(value = "/mongo/down", method = RequestMethod.GET)
     public void monGoDown(String fileId, HttpServletResponse response){
         try {
-            // String 如何转换未 ObjectId ???
+            // String 如何转换为 ObjectId ???
 //            Query query = Query.query(Criteria.where("_id").is(fileId));
             // 查询单个文件
 //            GridFSFile gfsfile = gridFsTemplate.findOne(query);
@@ -183,5 +182,28 @@ public class FileController {
     @RequestMapping(value = "/pool/info", method = RequestMethod.GET)
     public Map<String,Object> getPoolInfo(PoolType poolType){
         return  SingletonPoolTool.getPoolInfo(poolType);
+    }
+
+    @RequestMapping(value = "/client/check", method = RequestMethod.GET)
+    public Result<BreakFileInfo> checkFile(String fileId){
+        if(StringUtils.isEmpty(fileId)){
+            return ResultUtil.errorWithOutData("fileId is null");
+        }
+        BreakFileInfo breakFileInfo = fileService.checkFile(fileId);
+        return ResultUtil.success(breakFileInfo);
+    }
+
+    @RequestMapping(value = "/client/download", method = RequestMethod.POST)
+    public Result<DownResult> downloadChunk(DownParam downParam){
+        DownResult downResult = new DownResult();
+        try {
+            byte[] bytes = fileService.downloadChunk(downParam);
+            downResult.setFileBytes(bytes);
+            downResult.setStatus(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("download chunk file error");
+        }
+        return ResultUtil.success(downResult);
     }
 }

@@ -162,4 +162,9 @@ public class FileRedisData {
         return stringRedisTemplate.opsForList().range(breakAddressKey, 0, chunks - 1);
     }
 
+    public String findOneBreakAddress(String fileId, int index){
+        String breakAddressKey = String.format(CommonConstant.FILE_BREAK_ADDRESS, fileId);
+        return stringRedisTemplate.opsForList().index(breakAddressKey, index);
+    }
+
 }
