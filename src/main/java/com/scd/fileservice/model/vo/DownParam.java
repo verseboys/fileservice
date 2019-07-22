@@ -9,9 +9,7 @@ import lombok.Data;
 @Data
 public class DownParam {
 
-    private String fileId;
-
-    private Integer chunk;
+    private String fileAddress;
 
     private String uploadType;
 }

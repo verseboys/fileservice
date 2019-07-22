@@ -326,8 +326,7 @@ public class FileServiceImpl implements FileService {
 
     public byte[] downloadChunk(DownParam downParam) throws Exception {
         String uploadType = downParam.getUploadType();
-        String fileId = downParam.getFileId();
-        String address = fileRedisData.findOneBreakAddress(fileId, downParam.getChunk());
+        String address = downParam.getFileAddress();
         int index = address.indexOf("_");
         address = address.substring(index + 1);
         BaseEngine baseEngine = EngineMapperTool.getFileEngine(uploadType);
