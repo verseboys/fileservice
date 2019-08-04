@@ -220,17 +220,19 @@ public class FileServiceImpl implements FileService {
         int curChunk = breakParam.getChunk();
         int chunks = breakParam.getChunks();
         // 文件第一次上传初始化 块值
-        synchronized (FileServiceImpl.class) {
-            if (!fileRedisData.existsBreakRecord(md5)) {
-                // 存储断点信息
-                Map<String, String> breakFileMap = createBreakFileInfo(chunkSize, chunks, false);
-                fileRedisData.saveBreakInfo(md5, breakFileMap);
-                if (chunks == 0 || chunks == 1) {
-                    return true;
+        if (!fileRedisData.existsBreakRecord(md5)) {
+            synchronized (FileServiceImpl.class) {
+                if (!fileRedisData.existsBreakRecord(md5)) {
+                    // 存储断点信息
+                    Map<String, String> breakFileMap = createBreakFileInfo(chunkSize, chunks, false);
+                    fileRedisData.saveBreakInfo(md5, breakFileMap);
+                    if (chunks == 0 || chunks == 1) {
+                        return true;
+                    }
+                    // 初始化上传块记录
+                    LOGGER.info("first upload {}, init part record", md5);
+                    fileRedisData.initBreakRecord(md5, chunks);
                 }
-                // 初始化上传块记录
-                LOGGER.info("first upload {}, init part record", md5);
-                fileRedisData.initBreakRecord(md5, chunks);
             }
         }
         // 当前块设置为 1
