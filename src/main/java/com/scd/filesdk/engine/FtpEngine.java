@@ -13,6 +13,7 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
@@ -23,6 +24,7 @@ import java.io.InputStream;
  * @date 2019/6/20.
  */
 @Component
+@ConditionalOnProperty(name = "file.engine.ftp.enable", havingValue = "true")
 public class FtpEngine extends BaseEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FtpEngine.class);

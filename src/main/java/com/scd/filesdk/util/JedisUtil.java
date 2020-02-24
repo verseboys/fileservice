@@ -95,11 +95,48 @@ public class JedisUtil {
 
     public static void main(String[] args) throws Exception{
         init(ServiceInfo.REDIS.host, ServiceInfo.REDIS.port, ServiceInfo.REDIS.password,ServiceInfo.REDIS.database);
-//        showAllKeys();
-        String key = "file:breakaddress:36dea236c9c94abab2c8da23a8f113ce";
-        Long size = jedis.llen(key);
-        List<String> list1 = jedis.lrange(key, 0, size);
-        List<String> list2 = jedis.lrange(key, 0, size - 1);
-        System.out.println(list1);
+        showAllKeys();
+//        String key = "file:breakaddress:36dea236c9c94abab2c8da23a8f113ce";
+//        Long size = jedis.llen(key);
+//        List<String> list1 = jedis.lrange(key, 0, size);
+//        List<String> list2 = jedis.lrange(key, 0, size - 1);
+//        System.out.println(list1);
+        String sql = "INSERT INTO gateway_route (id, route_id, uri, predicates, filters, orders, description, status, created_time, updated_time, created_by, updated_by)\n" +
+                "VALUES\n" +
+                "(101,\n" +
+                " 'authorization-server',\n" +
+                " 'lb://authorization-server:8000',\n" +
+                " '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/authorization-server/**\"}}]',\n" +
+                " '[{\"name\":\"StripPrefix\",\"args\":{\"parts\":\"1\"}}]',\n" +
+                " 100,\n" +
+                " 'authorization-server',\n" +
+                " 'Y', now(), now(), 'system', 'system'),\n" +
+                "(102,\n" +
+                " 'authentication-server',\n" +
+                " 'lb://authentication-server:8001',\n" +
+                " '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/authentication-server/**\"}}]',\n" +
+                " '[{\"name\":\"StripPrefix\",\"args\":{\"parts\":\"1\"}}]',\n" +
+                " 100,\n" +
+                " 'authentication-server',\n" +
+                " 'Y', now(), now(), 'system', 'system'),\n" +
+                "(103,\n" +
+                " 'organization',\n" +
+                " 'lb://organization:8010',\n" +
+                " '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/organization/**\"}}]',\n" +
+                " '[{\"name\":\"StripPrefix\",\"args\":{\"parts\":\"1\"}}]',\n" +
+                " 100,\n" +
+                " 'organization',\n" +
+                " 'Y', now(), now(), 'system', 'system'),\n" +
+                "(104,\n" +
+                " 'gateway-admin',\n" +
+                " 'lb://gateway-admin:8445',\n" +
+                " '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/gateway-admin/**\"}}]',\n" +
+                " '[{\"name\":\"StripPrefix\",\"args\":{\"parts\":\"1\"}}]',\n" +
+                " 100,\n" +
+                " 'gateway-admin',\n" +
+                " 'Y', now(), now(), 'system', 'system');";
+        sql = sql.replace("\n","");
+//        sql = sql.replace(" ", "");
+        System.out.println(sql);
     }
 }

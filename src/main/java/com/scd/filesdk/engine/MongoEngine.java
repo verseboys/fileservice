@@ -10,6 +10,7 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
@@ -20,6 +21,7 @@ import java.io.InputStream;
  * @date 2019/6/24.
  */
 @Component
+@ConditionalOnProperty(name = "file.engine.mongo.enable", havingValue = "true")
 public class MongoEngine extends BaseEngine{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoEngine.class);

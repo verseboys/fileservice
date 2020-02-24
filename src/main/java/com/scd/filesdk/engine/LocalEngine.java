@@ -8,6 +8,7 @@ import com.scd.filesdk.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -16,6 +17,7 @@ import java.io.*;
  * @author chengdu
  */
 @Component
+@ConditionalOnProperty(name = "file.engine.local.enable", havingValue = "true")
 public class LocalEngine extends BaseEngine{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalEngine.class);

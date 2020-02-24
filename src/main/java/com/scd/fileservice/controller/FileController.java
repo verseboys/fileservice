@@ -46,14 +46,14 @@ public class FileController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    @Autowired
-    private MongoTemplate mongoTemplate;
-
-    @Autowired
-    private GridFsTemplate gridFsTemplate;
-
-    @Autowired
-    private GridFSBucket gridFSBucket;
+//    @Autowired
+//    private MongoTemplate mongoTemplate;
+//
+//    @Autowired
+//    private GridFsTemplate gridFsTemplate;
+//
+//    @Autowired
+//    private GridFSBucket gridFSBucket;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileController.class);
 
@@ -149,35 +149,35 @@ public class FileController {
         return map;
     }
 
-    @RequestMapping(value = "/mongo/test", method = RequestMethod.POST)
-    public String monGoTest(@RequestParam("file") MultipartFile multipartFile){
-        try {
-            InputStream inputStream = multipartFile.getInputStream();
-            String fileName = multipartFile.getOriginalFilename();
-//            ObjectId objectId = gridFsTemplate.store(inputStream, fileName);
-            ObjectId objectId = gridFSBucket.uploadFromStream(fileName, inputStream);
-            return objectId.toHexString();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return "";
-    }
+//    @RequestMapping(value = "/mongo/test", method = RequestMethod.POST)
+//    public String monGoTest(@RequestParam("file") MultipartFile multipartFile){
+//        try {
+//            InputStream inputStream = multipartFile.getInputStream();
+//            String fileName = multipartFile.getOriginalFilename();
+////            ObjectId objectId = gridFsTemplate.store(inputStream, fileName);
+//            ObjectId objectId = gridFSBucket.uploadFromStream(fileName, inputStream);
+//            return objectId.toHexString();
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//        return "";
+//    }
 
-    @RequestMapping(value = "/mongo/down", method = RequestMethod.GET)
-    public void monGoDown(String fileId, HttpServletResponse response){
-        try {
-            // String 如何转换为 ObjectId ???
-//            Query query = Query.query(Criteria.where("_id").is(fileId));
-            // 查询单个文件
-//            GridFSFile gfsfile = gridFsTemplate.findOne(query);
-            ObjectId objectId = new ObjectId(fileId);
-            GridFSDownloadStream gridFSDownloadStream = gridFSBucket.openDownloadStream(objectId);
-            GridFSFile gridFSFile = gridFSDownloadStream.getGridFSFile();
-            FileDownLoadUtil.outputFile(response, gridFSDownloadStream, gridFSFile.getFilename());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
+//    @RequestMapping(value = "/mongo/down", method = RequestMethod.GET)
+//    public void monGoDown(String fileId, HttpServletResponse response){
+//        try {
+//            // String 如何转换为 ObjectId ???
+////            Query query = Query.query(Criteria.where("_id").is(fileId));
+//            // 查询单个文件
+////            GridFSFile gfsfile = gridFsTemplate.findOne(query);
+//            ObjectId objectId = new ObjectId(fileId);
+//            GridFSDownloadStream gridFSDownloadStream = gridFSBucket.openDownloadStream(objectId);
+//            GridFSFile gridFSFile = gridFSDownloadStream.getGridFSFile();
+//            FileDownLoadUtil.outputFile(response, gridFSDownloadStream, gridFSFile.getFilename());
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//    }
 
     @RequestMapping(value = "/pool/info", method = RequestMethod.GET)
     public Map<String,Object> getPoolInfo(PoolType poolType){

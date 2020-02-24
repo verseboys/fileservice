@@ -14,6 +14,7 @@ import org.csource.fastdfs.StorageClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -25,6 +26,7 @@ import java.io.InputStream;
  * @date 2019/7/14.
  */
 @Component
+@ConditionalOnProperty(name = "file.engine.fdfs.enable", havingValue = "true")
 public class FdfsEngine extends BaseEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FdfsEngine.class);
