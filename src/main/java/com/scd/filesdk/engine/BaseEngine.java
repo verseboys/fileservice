@@ -1,10 +1,12 @@
 package com.scd.filesdk.engine;
 
 
+import com.scd.filesdk.exception.MergeFileException;
 import com.scd.filesdk.model.param.BreakParam;
 import com.scd.filesdk.model.param.UploadParam;
 import com.scd.filesdk.model.vo.BreakResult;
 import com.scd.filesdk.util.FileUtil;
+import com.sun.deploy.net.DownloadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,13 +39,21 @@ public abstract class BaseEngine {
      * @return
      * @throws Exception
      */
-    public byte[] downloadByte(String remotePath) throws Exception {
-        InputStream inputStream = download(remotePath);
+    public byte[] downloadByte(String remotePath) {
         String tempPath = "temp" + File.separator + UUID.randomUUID().toString() + ".tmp";
-        LOGGER.info(" thread name {}, filepath {}", Thread.currentThread().getName(), tempPath);
-        FileUtil.writeInputStreamToLocal(inputStream, tempPath);
-        byte[] bytes = FileUtil.getBytes(tempPath);
-        FileUtil.deleteFile(tempPath);
+        byte[] bytes = null;
+        try {
+            InputStream inputStream = download(remotePath);
+            LOGGER.info(" thread name {}, filepath {}", Thread.currentThread().getName(), tempPath);
+            FileUtil.writeInputStreamToLocal(inputStream, tempPath);
+            bytes = FileUtil.getBytes(tempPath);
+        } catch (Exception e) {
+        } finally {
+            FileUtil.deleteFile(tempPath);
+        }
+        if (bytes == null) {
+            throw new MergeFileException("down load file to byte error");
+        }
         return bytes;
     }
 }

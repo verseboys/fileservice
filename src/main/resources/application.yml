@@ -26,13 +26,6 @@ spring:
           max-active: 600
           max-idle: 30
           max-wait: 10
-    data:
-      mongodb:
-        host: 127.0.0.1
-        port: 27017
-        database: mongotest
-        username: chengdu
-        password: test
 
 remote:
     file:
@@ -62,7 +55,18 @@ file:
          group: group1
          enable: false
       mongo:
-         enable: false
+         host: 127.0.0.1
+         port: 27017
+         database: mongotest
+         username: chengdu
+         password: test
+         connectionsPerHost: 8
+         minConnectionsPerHost: 3
+         threadsAllowedToBlockForConnectionMultiplier: 4
+         connectTimeout: 3000
+         maxWaitTime: 4000
+         socketTimeout: 4000
+         enable: true
 
 pool:
   file:

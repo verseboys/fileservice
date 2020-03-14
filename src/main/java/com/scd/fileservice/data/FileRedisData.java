@@ -45,7 +45,7 @@ public class FileRedisData {
 
     public Object findFileStoreType(String fileId){
         String fileKey = String.format(CommonConstant.FILE_INFO, fileId);
-        return stringRedisTemplate.opsForHash().get(fileKey, CommonConstant.FILEINFO.storetype);
+        return stringRedisTemplate.opsForHash().get(fileKey, CommonConstant.FILEINFO.storetype.getValue());
     }
 
     public Map<Object,Object> findFileInfo(String fileId){
@@ -98,7 +98,6 @@ public class FileRedisData {
 
     /**
      * 初始化记录为0，
-     * 最终期望结果为1
      * @param fileId
      * @param chunks
      */
@@ -107,15 +106,11 @@ public class FileRedisData {
             return ;
         }
         String breakRecordKey = String.format(CommonConstant.FILE_BREAK_RECORD, fileId);
-        String breakAllKey = String.format(CommonConstant.FILE_BREAK_EXPECTED, fileId);
         StringBuffer record = new StringBuffer("");
-        StringBuffer expecteds = new StringBuffer("");
         for(int i=0; i < chunks; i++){
             record.append(CommonConstant.CHUNK_NOT_UPLOADED);
-            expecteds.append(CommonConstant.CHUNK_UPLOADED);
         }
         stringRedisTemplate.opsForValue().set(breakRecordKey, record.toString());
-        stringRedisTemplate.opsForValue().set(breakAllKey, expecteds.toString());
     }
 
     public boolean existsBreakRecord(String fileId){
@@ -134,16 +129,6 @@ public class FileRedisData {
     public Boolean deleteBreakRecord(String fileId){
         String breakRecordKey = String.format(CommonConstant.FILE_BREAK_RECORD, fileId);
         return stringRedisTemplate.delete(breakRecordKey);
-    }
-
-    public String findBreakExpected(String fileId){
-        String breakAllKey = String.format(CommonConstant.FILE_BREAK_EXPECTED, fileId);
-        return stringRedisTemplate.opsForValue().get(breakAllKey);
-    }
-
-    public Boolean deleteBreakExpected(String fileId){
-        String breakAllKey = String.format(CommonConstant.FILE_BREAK_EXPECTED, fileId);
-        return stringRedisTemplate.delete(breakAllKey);
     }
 
     public void setuploadedChunk(String fileId, int index){
@@ -165,6 +150,22 @@ public class FileRedisData {
     public String findOneBreakAddress(String fileId, int index){
         String breakAddressKey = String.format(CommonConstant.FILE_BREAK_ADDRESS, fileId);
         return stringRedisTemplate.opsForList().index(breakAddressKey, index);
+    }
+
+    public void deleteStoreAllKey(String fileId) {
+        stringRedisTemplate.opsForSet().remove(CommonConstant.FILES, fileId);
+        String fileKey = String.format(CommonConstant.FILE_INFO, fileId);
+        stringRedisTemplate.delete(fileKey);
+    }
+
+    public void deleteStoreBlockKey(String fileId) {
+        stringRedisTemplate.opsForSet().remove(CommonConstant.FILES, fileId);
+        String fileKey = String.format(CommonConstant.FILE_INFO, fileId);
+        stringRedisTemplate.delete(fileKey);
+        String breakInfoKey = String.format(CommonConstant.FILE_BREAK_INFO, fileId);
+        stringRedisTemplate.delete(breakInfoKey);
+        String breakAddressKey = String.format(CommonConstant.FILE_BREAK_ADDRESS, fileId);
+        stringRedisTemplate.delete(breakAddressKey);
     }
 
 }

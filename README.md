@@ -37,7 +37,6 @@ file upload download
 |file:{id}|hash|file_name,file_size,file_address,upload_type,upload_time,store_type|存储文件详细信息|
 |file:breakinfo:{id}|hash|file_status,chunk_size,chunk_num|存储断点上传信息，切片大小，是否已上传完成.一共有多少块|
 |file:breakrecord:{id}|string|010|存储上传块记录，0代表未上传，1代表已上传|
-|file:breakexpected:{id}|string|111|存储数据块校验结果|
 |file:breakaddress:{id}|list|[address1,address2]|存储切片上传地址|
 
 ###  相关键值对样例

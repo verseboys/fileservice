@@ -43,7 +43,7 @@ public class BreakTask implements Callable<BreakMergeResult> {
         String fileName = tempFile.getName();
         breakMergeResult.setFileName(fileName);
         try {
-            LOGGER.info("merge file {}, chunk {}, chunsize {}", fileName, chunk, chunkSize);
+            LOGGER.debug("merge file {}, chunk {}, chunsize {}", fileName, chunk, chunkSize);
             BaseEngine baseEngine = EngineMapperTool.getFileEngine(uploadType);
             byte[] bytes = baseEngine.downloadByte(address);
             long offset = chunk * chunkSize;

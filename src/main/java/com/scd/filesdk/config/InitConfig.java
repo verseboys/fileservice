@@ -18,25 +18,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class InitConfig implements InitializingBean{
 
-//    @Autowired
-//    private LocalEngine localEngine;
-//
-//    @Autowired
-//    private SftpEngine sftpEngine;
-//
-//    @Autowired
-//    private FtpEngine ftpEngine;
-//
-//    @Autowired
-//    private MongoEngine mongoEngine;
-//
-//    @Autowired
-//    private FdfsEngine fdfsEngine;
-
-    private List<Class<BaseEngine>> beanClassList = Arrays.asList(
-            new Class[]{LocalEngine.class, SftpEngine.class,
-                    FtpEngine.class, MongoEngine.class,
-                    FdfsEngine.class});
+    private List<Class<? extends BaseEngine>> beanClassList = Arrays.asList(
+            LocalEngine.class,
+            SftpEngine.class,
+            FtpEngine.class,
+            MongoEngine.class,
+            FdfsEngine.class
+    );
 
     private Map<Class<? extends BaseEngine>, String> ngMap = new HashMap<Class<? extends BaseEngine>, String>(){
         {
@@ -68,10 +56,11 @@ public class InitConfig implements InitializingBean{
         });
     }
 
-    public <T>  T findConfigBean(Class<T> clazz) {
+    private  <T>  T findConfigBean(Class<T> clazz) {
         try {
             return BeanPool.getBean(clazz);
         } catch (Exception e) {
+
         }
         return null;
     }

@@ -2,12 +2,11 @@ package com.scd.fileservice.service;
 
 import com.scd.filesdk.model.param.BreakParam;
 import com.scd.filesdk.model.param.UploadParam;
-import com.scd.fileservice.model.vo.BreakStatus;
-import com.scd.fileservice.model.vo.BreakFileInfo;
-import com.scd.fileservice.model.vo.DownParam;
+import com.scd.fileservice.model.vo.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 /**
  * @author chengdu
@@ -19,11 +18,13 @@ public interface FileService {
 
     String download(String fileId, HttpServletResponse response) throws Exception;
 
-    String breakUpload(BreakParam breakParam, String type);
+    BreakUploadResult breakUpload(BreakParam breakParam, String type);
 
     BreakStatus checkBreakUploadStatus(String md5);
 
     BreakFileInfo checkFile(String fileId);
 
     byte[] downloadChunk(DownParam downParam) throws Exception;
+
+    DeleteResult deleteOne(String fileId);
 }

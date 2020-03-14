@@ -1,7 +1,6 @@
 package com.scd.thread.task;
 
 import com.scd.thread.TestThreadPool;
-import io.netty.util.internal.ThreadExecutorMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

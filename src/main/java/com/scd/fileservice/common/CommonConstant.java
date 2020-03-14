@@ -14,8 +14,6 @@ public class CommonConstant {
     public static final String FILE_BREAK_INFO = "file:breakinfo:%s";
     // file:breakrecord:%s type string 存储上传块记录 0 未上传、1 已上传
     public static final String FILE_BREAK_RECORD = "file:breakrecord:%s";
-    // file:breakexpected:{id}  type string 存储所有上传期望的结果
-    public static final String FILE_BREAK_EXPECTED = "file:breakexpected:%s";
     // file:breakaddress:%s type List 存储切片存储地址
     public static final String FILE_BREAK_ADDRESS = "file:breakaddress:%s";
 
