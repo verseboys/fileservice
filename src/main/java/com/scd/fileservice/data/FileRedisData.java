@@ -11,6 +11,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -105,12 +106,27 @@ public class FileRedisData {
         if(chunks == 0){
             return ;
         }
-        String breakRecordKey = String.format(CommonConstant.FILE_BREAK_RECORD, fileId);
         StringBuffer record = new StringBuffer("");
+        List<String> addressList = new ArrayList<>(chunks);
         for(int i=0; i < chunks; i++){
             record.append(CommonConstant.CHUNK_NOT_UPLOADED);
+            addressList.add(CommonConstant.CHUNK_NOT_UPLOADED);
         }
+        String breakRecordKey = String.format(CommonConstant.FILE_BREAK_RECORD, fileId);
         stringRedisTemplate.opsForValue().set(breakRecordKey, record.toString());
+    }
+
+    public void initAddress(String fileId, int chunks) {
+        // 如果文件没有切割分片，初始化一个地址存储
+        if(chunks == 0){
+            chunks = 1;
+        }
+        List<String> addressList = new ArrayList<>(chunks);
+        for(int i=0; i < chunks; i++){
+            addressList.add(CommonConstant.CHUNK_NOT_UPLOADED);
+        }
+        String breakAddressKey = String.format(CommonConstant.FILE_BREAK_ADDRESS, fileId);
+        stringRedisTemplate.opsForList().leftPushAll(breakAddressKey, addressList);
     }
 
     public boolean existsBreakRecord(String fileId){
@@ -137,9 +153,9 @@ public class FileRedisData {
     }
 
 
-    public void saveBreakAddress(String fileId, String remotePath){
+    public void saveBreakAddress(String fileId, int chunk, String remotePath){
         String breakAddressKey = String.format(CommonConstant.FILE_BREAK_ADDRESS, fileId);
-        stringRedisTemplate.opsForList().rightPush(breakAddressKey, remotePath);
+        stringRedisTemplate.opsForList().set(breakAddressKey, chunk, remotePath);
     }
 
     public List<String> findBreakAddress(String fileId, int chunks){
@@ -168,4 +184,8 @@ public class FileRedisData {
         stringRedisTemplate.delete(breakAddressKey);
     }
 
+    public String findCurChunkAssress(String fileId, int curChunk) {
+        String breakAddressKey = String.format(CommonConstant.FILE_BREAK_ADDRESS, fileId);
+        return stringRedisTemplate.opsForList().index(breakAddressKey, curChunk);
+    }
 }

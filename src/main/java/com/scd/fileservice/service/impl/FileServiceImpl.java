@@ -132,19 +132,26 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public BreakUploadResult breakUpload(BreakParam breakParam, String type) {
-        BaseEngine baseEngine = EngineMapperTool.getFileEngine(type);
-        BreakResult breakResult = baseEngine.upload(breakParam);
         BreakUploadResult breakUploadResult = new BreakUploadResult();
         breakUploadResult.setChunk(breakParam.getChunk());
         breakUploadResult.setFileId(breakParam.getMd5());
+        if (checkCurChunkUpload(breakParam)) {
+            breakUploadResult.setStatus(CommonConstant.CHUNK_UPLOADED);
+            LOGGER.debug("this file chunk uploaded, file id {}", breakParam.getMd5());
+            return breakUploadResult;
+        }
+        BaseEngine baseEngine = EngineMapperTool.getFileEngine(type);
+        BreakResult breakResult = baseEngine.upload(breakParam);
         if(!breakResult.isWriteSuccess()){
             breakUploadResult.setStatus(CommonConstant.CHUNK_NOT_UPLOADED);
+            return breakUploadResult;
         }
-        String md5 = breakParam.getMd5();
+        // init data
+        initData(breakParam);
         // save chunk upload info to db
         saveChunkInfo(breakParam, breakResult, type);
         breakUploadResult.setStatus(CommonConstant.CHUNK_UPLOADED);
-        if(checkAllPartUpload(breakParam, breakResult, type)){
+        if(checkAllPartUpload(breakParam, breakResult)){
             String fileName = breakParam.getName();
             if(ServiceInfo.ENGINE.LOCAL.equals(type)){
                 File tempFile = breakResult.getTempFile();
@@ -164,6 +171,36 @@ public class FileServiceImpl implements FileService {
         return breakUploadResult;
     }
 
+    private synchronized boolean checkCurChunkUpload(BreakParam breakParam) {
+        int curChunk = breakParam.getChunk();
+        String md5 = breakParam.getMd5();
+        String address = fileRedisData.findCurChunkAssress(md5, curChunk);
+        if (address == null || CommonConstant.CHUNK_NOT_UPLOADED.equals(address)) {
+            return false;
+        }
+        return true;
+    }
+
+    private void initData(BreakParam breakParam) {
+        int chunks = breakParam.getChunks();
+        String md5 = breakParam.getMd5();
+        long chunkSize = breakParam.getChunkSize();
+        // 文件第一次上传初始化 块值
+        if (!fileRedisData.existsBreakRecord(md5)) {
+            synchronized (FileServiceImpl.class) {
+                if (!fileRedisData.existsBreakRecord(md5)) {
+                    // 存储断点信息
+                    Map<String, String> breakFileMap = createBreakFileInfo(chunkSize, chunks, false);
+                    fileRedisData.saveBreakInfo(md5, breakFileMap);
+                    // 初始化上传块记录
+                    LOGGER.info("first upload {}, init part record", md5);
+                    fileRedisData.initBreakRecord(md5, chunks);
+                    fileRedisData.initAddress(md5, chunks);
+                }
+            }
+        }
+    }
+
     @Override
     public BreakStatus checkBreakUploadStatus(String md5) {
         Map<Object,Object> map = fileRedisData.findBreakFileInfo(md5);
@@ -178,6 +215,9 @@ public class FileServiceImpl implements FileService {
         }else{
             // 查询break_record 查找那些块未上传
             String record = fileRedisData.findBreakRecord(md5);
+            if (record == null) {
+                return new BreakStatus(CommonConstant.FILESTATUS.NOT.getStatus());
+            }
             byte[] recordArr = record.getBytes();
             List<Integer> notUpload = new ArrayList<>(recordArr.length);
             for(int i = 0; i < recordArr.length; i++){
@@ -211,36 +251,24 @@ public class FileServiceImpl implements FileService {
         String md5 = breakParam.getMd5();
         int curChunk = breakParam.getChunk();
         // 如果不是存储本地，记录每一块的存储地址
-        if(! ServiceInfo.ENGINE.LOCAL.equals(type)){
+        if(!ServiceInfo.ENGINE.LOCAL.equals(type)){
             // 连接上第几块
             String dataBasePath = curChunk + "_" + breakResult.getFilePath();
-            fileRedisData.saveBreakAddress(md5,dataBasePath);
+            fileRedisData.saveBreakAddress(md5, curChunk, dataBasePath);
         }
     }
 
-    private boolean checkAllPartUpload(BreakParam breakParam, BreakResult breakResult, String type) {
+    private boolean checkAllPartUpload(BreakParam breakParam, BreakResult breakResult) {
         String md5 = breakParam.getMd5();
-        long chunkSize = breakParam.getChunkSize();
-        int curChunk = breakParam.getChunk();
-        int chunks = breakParam.getChunks();
-        // 文件第一次上传初始化 块值
-        if (!fileRedisData.existsBreakRecord(md5)) {
-            synchronized (FileServiceImpl.class) {
-                if (!fileRedisData.existsBreakRecord(md5)) {
-                    // 存储断点信息
-                    Map<String, String> breakFileMap = createBreakFileInfo(chunkSize, chunks, false);
-                    fileRedisData.saveBreakInfo(md5, breakFileMap);
-                    if (chunks == 0 || chunks == 1) {
-                        return true;
-                    }
-                    // 初始化上传块记录
-                    LOGGER.info("first upload {}, init part record", md5);
-                    fileRedisData.initBreakRecord(md5, chunks);
-                }
-            }
+        long chunks = breakParam.getChunks();
+        if (chunks == 0 || chunks == 1) {
+            return true;
         }
+        int curChunk = breakParam.getChunk();
         // 当前块设置为 1
-        fileRedisData.setuploadedChunk(md5, curChunk);
+        if (breakResult.isWriteSuccess()) {
+            fileRedisData.setuploadedChunk(md5, curChunk);
+        }
         String breakRecord = fileRedisData.findBreakRecord(md5);
         LOGGER.info("now upload record is {}", breakRecord);
         // 如果有0, 表示没有上传完成
