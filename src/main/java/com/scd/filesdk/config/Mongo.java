@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
  * @date 2019/6/25.
  */
 @Configuration(value = "mongoproperties")
+@ConditionalOnProperty(name = "file.engine.mongo.enable", havingValue = "true")
 @ConfigurationProperties(prefix = "file.engine.mongo")
 @Data
 public class Mongo {
